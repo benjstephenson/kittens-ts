@@ -1,0 +1,19 @@
+{
+  "name": "kittens-ts",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Benji Stephenson",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/jasmine": "^3.10.2",
+    "jasmine": "^3.10.0",
+    "jasmine-ts": "^0.4.0",
+    "mismatched": "^2.9.2",
+    "ts-node": "^10.4.0",
+    "typescript": "^4.5.2"
+  }
+}
