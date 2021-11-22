@@ -1,35 +1,34 @@
-import { Option } from './Option'
-import { id } from './functions'
+import { Option } from '../Option'
+import { id } from '../functions'
 
 export type Either<L, R> = Left<L, R> | Right<L, R>
-export const URI = 'Either'
-export type URI = typeof URI
-
-declare module './hkt' {
-  interface URItoHKT<S, R, E, A> {
-    Either: Either<E, A>
-  }
-}
+export const EitherURI = 'Either'
+export type EitherURI = typeof EitherURI
 
 export const Either = {
   left: <L, R>(l: L): Either<L, R> => new Left(l),
 
-  right: <L, R>(r: R): Either<L, R> => new Right(r)
+  right: <L, R>(r: R): Either<L, R> => new Right(r),
+
+  rightCast: <L, R, RR>(e: Left<L, R>): Left<L, RR> => e as any as Left<L, RR>,
 }
 
 class Left<L, R> {
-
-  readonly _URI!: URI
+  readonly _URI!: EitherURI
   readonly _A!: R
   readonly tag = 'Left'
 
-  constructor(private readonly value: L) { }
+  constructor(private readonly value: L) {}
 
-  isLeft(): this is Left<L, R> { return true }
-  isRight(): this is Right<L, R> { return false }
+  isLeft(): this is Left<L, R> {
+    return true
+  }
+  isRight(): this is Right<L, R> {
+    return false
+  }
 
   ap<B>(fab: Either<L, (r: R) => B>): Either<L, B> {
-    return fab.flatMap(ab => this.map(r => ab(r)))
+    return fab.flatMap((ab) => this.map((r) => ab(r)))
   }
 
   map<U>(f: (r: R) => U): Either<L, U> {
@@ -54,22 +53,26 @@ class Left<L, R> {
 }
 
 class Right<L, R> {
-
-  readonly _URI!: URI
+  readonly _URI!: EitherURI
   readonly _A!: R
   readonly tag = 'Right'
 
+  constructor(private readonly value: R) {}
 
-  constructor(private readonly value: R) { }
-
-  isLeft(): this is Left<L, R> { return false }
-  isRight(): this is Right<L, R> { return true }
-
-
-  ap<B>(fab: Either<L, (r: R) => B>): Either<L, B> {
-    return fab.flatMap(ab => this.map(r => ab(r)))
+  isLeft(): this is Left<L, R> {
+    return false
+  }
+  isRight(): this is Right<L, R> {
+    return true
   }
 
+  right(): R {
+    return this.value
+  }
+
+  ap<B>(fab: Either<L, (r: R) => B>): Either<L, B> {
+    return fab.flatMap((ab) => this.map((r) => ab(r)))
+  }
 
   map<U>(f: (r: R) => U): Either<L, U> {
     return this.bimap(id, f)
@@ -91,5 +94,3 @@ class Right<L, R> {
     return Option.some(this.value)
   }
 }
-
-
