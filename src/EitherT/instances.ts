@@ -24,7 +24,13 @@ export function monad<F>(M: Monad<UHKT<F>>) {
   const appl = applicative(M)
   return getInstance<Monad<[UHKT<F>[0], URI<E.EitherURI>]>>({
     ...appl,
-    pure: appl.of,
+    //pure: appl.of,
     flatMap: (f, fa) => M.flatMap((a) => (a.isLeft() ? M.of(E.Either.rightCast(a)) : f(a.right())), fa),
   })
 }
+
+import * as T from '../Task'
+const taskEither = monad(T.monad)
+const b = taskEither.of(1)
+const ad = taskEither.flatMap((b) => T.Task.done(E.Either.right(true)), T.Task.done(E.Either.left(1)))
+const a = taskEither.map((c) => 'foo', b)

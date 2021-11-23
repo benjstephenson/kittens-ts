@@ -2,14 +2,17 @@ import { Either } from '../Either'
 import { URIS, Monad, Type } from '../hkt'
 import { kleisli } from '../Either'
 
-export class Kleisli<F extends URIS, C, S, R, E, A, B> {
+export class Kleisli<F extends URIS, A, B, C, S = never, R = never, E = never> {
   private constructor(private readonly m: Monad<F, C>, private readonly run: (a: A) => Type<F, C, S, R, E, B>) {}
 
-  static of<F extends URIS, C, S, R, E, A, B>(M: Monad<F, C>, run: (a: A) => Type<F, C, S, R, E, B>) {
+  static of<F extends URIS, A, B, C, S = never, R = never, E = never>(
+    M: Monad<F, C>,
+    run: (a: A) => Type<F, C, S, R, E, B>
+  ) {
     return new Kleisli(M, run)
   }
 
-  andThen<BB>(k: Kleisli<F, C, S, R, E, B, BB>) {
+  andThen<BB>(k: Kleisli<F, B, BB, C>) {
     return new Kleisli(this.m, (a: A) => this.m.flatMap(k.run, this.run(a)))
   }
 

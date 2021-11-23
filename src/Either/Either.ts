@@ -23,8 +23,13 @@ class Left<L, R> {
   isLeft(): this is Left<L, R> {
     return true
   }
+
   isRight(): this is Right<L, R> {
     return false
+  }
+
+  rightCast<L, R, RR>(e: Left<L, R>): Left<L, RR> {
+    return e as any as Left<L, RR>
   }
 
   ap<B>(fab: Either<L, (r: R) => B>): Either<L, B> {

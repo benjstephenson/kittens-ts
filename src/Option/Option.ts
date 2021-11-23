@@ -14,12 +14,27 @@ class Some<A> {
 
   constructor(private readonly value: A) {}
 
-  map<B>(f: (a: A) => B): Some<B> {
+  isSome(): this is Some<A> {
+    return true
+  }
+  isNone(): this is None<A> {
+    return false
+  }
+
+  get(): A {
+    return this.value
+  }
+
+  map<B>(f: (a: A) => B): Option<B> {
     return new Some(f(this.value))
   }
 
   flatMap<B>(f: (a: A) => Option<B>): Option<B> {
     return f(this.value)
+  }
+
+  getOrElse(_default: A): A {
+    return this.value
   }
 }
 
@@ -28,11 +43,22 @@ class None<A> {
   readonly _A!: never
   readonly tag = 'None'
 
-  map<B>(_f: (a: A) => B): None<B> {
+  isSome(): this is Some<A> {
+    return false
+  }
+  isNone(): this is None<A> {
+    return true
+  }
+
+  map<B>(_f: (a: A) => B): Option<B> {
     return new None()
   }
 
   flatMap<B>(_f: (a: A) => Option<B>): Option<B> {
     return new None()
+  }
+
+  getOrElse(fallback: A): A {
+    return fallback
   }
 }

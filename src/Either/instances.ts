@@ -23,7 +23,7 @@ export const applicative = getInstance<Applicative<[URI<EitherURI>]>>({
 export const monad = getInstance<Monad<[URI<EitherURI>]>>({
   ...applicative,
 
-  pure: applicative.of,
+  //pure: applicative.of,
 
   flatMap: (f, fa) => fa.flatMap(f),
 })

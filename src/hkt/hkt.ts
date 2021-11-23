@@ -1,5 +1,6 @@
 import { Either } from '../Either'
 import { Option } from '../Option'
+import { Task } from '../Task'
 
 export interface HKT<F, A> {
   readonly _URI: F
@@ -34,6 +35,7 @@ export type UHKT4<F> = [URI<'HKT4', CustomType<'F', F>>]
 
 // @ts-ignore
 export interface URItoHKT<F, C, S, R, E, A> {
+  Task: Task<A>
   Option: Option<A>
   Either: Either<E, A>
   HKT: HKT<GetCustomType<F, 'F'>, A>
