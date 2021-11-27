@@ -1,28 +1,27 @@
-import { getInstance, Applicative, Apply, Functor, Monad, URI } from '../hkt'
-import { Option, OptionURI } from '.'
+import { getInstance, Applicative, Apply, Eq, Functor, Monad, URI } from '../hkt'
+import * as O from '.'
 
-export const functor = getInstance<Functor<[URI<OptionURI>]>>({
-  map: (f, fa) => fa.map(f),
+export const functor = getInstance<Functor<[URI<O.OptionURI>]>>({
+  map: O.map,
 })
 
-export const apply = getInstance<Apply<[URI<OptionURI>]>>({
+export const apply = getInstance<Apply<[URI<O.OptionURI>]>>({
   ...functor,
-  ap: (fab, fa) => fab.flatMap((f) => fa.map(f)),
+  ap: O.ap,
 })
 
-export const applicative = getInstance<Applicative<[URI<OptionURI>]>>({
+export const applicative = getInstance<Applicative<[URI<O.OptionURI>]>>({
   ...apply,
-  of: <A>(a: A | undefined): Option<A> => {
-    if (a === undefined) return Option.none()
-
-    return Option.some(a)
-  },
+  of: O.of,
 })
 
-export const monad = getInstance<Monad<[URI<OptionURI>]>>({
+export const monad = getInstance<Monad<[URI<O.OptionURI>]>>({
   ...applicative,
 
-  pure: <A>(a: A): Option<A> => Option.some(a),
-
-  flatMap: (f, fa) => fa.flatMap(f),
+  flatMap: O.flatMap,
 })
+
+export const eq = <A>(E: Eq<A>): Eq<O.Option<A>> =>
+  getInstance({
+    equals: (a, b) => (a.isNone() && b.isNone()) || a.flatMap((av) => b.map((bv) => E.equals(av, bv))).getOrElse(false),
+  })

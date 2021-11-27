@@ -1,47 +1,50 @@
-import { Either } from '../Either'
-import { Option } from '../Option'
-import { Task } from '../Task'
+import { Either, EitherURI } from '../Either'
+import { Option, OptionURI } from '../Option'
+import { Task, TaskURI } from '../Task'
+
+export const HKTURI = 'HKT'
+export type HKTURI = typeof HKTURI
 
 export interface HKT<F, A> {
-  readonly _URI: F
+  readonly _F: F
   readonly _A: A
 }
 
 export interface HKT2<F, E, A> {
-  readonly _URI: F
+  readonly _F: F
   readonly _E: E
   readonly _A: A
 }
 
 export interface HKT3<F, R, E, A> {
-  readonly _URI: F
+  readonly _F: F
   readonly _R: R
   readonly _E: E
   readonly _A: A
 }
 
 export interface HKT4<F, S, R, E, A> {
-  readonly _URI: F
+  readonly _F: F
   readonly _S: S
   readonly _R: R
   readonly _E: E
   readonly _A: A
 }
 
-export type UHKT<F> = [URI<'HKT', CustomType<'F', F>>]
-export type UHKT2<F> = [URI<'HKT2', CustomType<'F', F>>]
-export type UHKT3<F> = [URI<'HKT3', CustomType<'F', F>>]
-export type UHKT4<F> = [URI<'HKT4', CustomType<'F', F>>]
+export type UHKT<F> = [URI<HKTURI, CustomType<'_F', F>>]
+export type UHKT2<F> = [URI<'HKT2', CustomType<'_F', F>>]
+export type UHKT3<F> = [URI<'HKT3', CustomType<'_F', F>>]
+export type UHKT4<F> = [URI<'HKT4', CustomType<'_F', F>>]
 
 // @ts-ignore
 export interface URItoHKT<F, C, S, R, E, A> {
-  Task: Task<A>
-  Option: Option<A>
-  Either: Either<E, A>
-  HKT: HKT<GetCustomType<F, 'F'>, A>
-  HKT2: HKT2<GetCustomType<F, 'F'>, E, A>
-  HKT3: HKT3<GetCustomType<F, 'F'>, R, E, A>
-  HKT4: HKT4<GetCustomType<F, 'F'>, S, R, E, A>
+  [TaskURI]: Task<A>
+  [OptionURI]: Option<A>
+  [EitherURI]: Either<E, A>
+  [HKTURI]: HKT<GetCustomType<F, '_F'>, A>
+  HKT2: HKT2<GetCustomType<F, '_F'>, E, A>
+  HKT3: HKT3<GetCustomType<F, '_F'>, R, E, A>
+  HKT4: HKT4<GetCustomType<F, '_F'>, S, R, E, A>
 }
 
 export type URI<F extends ConcreteURIS, C = {}> = {

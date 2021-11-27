@@ -1,33 +1,25 @@
-import { Either, EitherURI } from '.'
+import * as E from '.'
 import { getInstance, Applicative, Apply, BiFunctor, Functor, Monad, URI } from '../hkt'
-import { Kleisli } from '../Kleisli'
 
-export const functor = getInstance<Functor<[URI<EitherURI>]>>({
-  map: (f, fa) => fa.map(f),
+export const functor = getInstance<Functor<[URI<E.EitherURI>]>>({
+  map: E.map,
 })
 
-export const bifunctor = getInstance<BiFunctor<[URI<EitherURI>]>>({
-  bimap: (fe, fa) => (F) => F.bimap(fe, fa),
+export const bifunctor = getInstance<BiFunctor<[URI<E.EitherURI>]>>({
+  bimap: (fe, fa) => (F) => F.bimap({ Left: fe, Right: fa }),
 })
 
-export const apply = getInstance<Apply<[URI<EitherURI>]>>({
+export const apply = getInstance<Apply<[URI<E.EitherURI>]>>({
   ...functor,
-  ap: (fab, fa) => fab.flatMap((ab) => fa.map((a) => ab(a))),
+  ap: E.ap,
 })
 
-export const applicative = getInstance<Applicative<[URI<EitherURI>]>>({
+export const applicative = getInstance<Applicative<[URI<E.EitherURI>]>>({
   ...apply,
-  of: Either.right,
+  of: E.right,
 })
 
-export const monad = getInstance<Monad<[URI<EitherURI>]>>({
+export const monad = getInstance<Monad<[URI<E.EitherURI>]>>({
   ...applicative,
-
-  //pure: applicative.of,
-
-  flatMap: (f, fa) => fa.flatMap(f),
+  flatMap: E.flatMap,
 })
-
-export const kleisli = <E, A, B>(f: (a: A) => Either<E, B>) => {
-  return Kleisli.of<[URI<EitherURI>], {}, never, never, E, A, B>(monad, f)
-}

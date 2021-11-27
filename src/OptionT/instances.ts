@@ -23,6 +23,6 @@ export function monad<F>(M: Monad<UHKT<F>>) {
   return getInstance<Monad<[UHKT<F>[0], URI<O.OptionURI>]>>({
     ...appl,
     //pure: appl.of,
-    flatMap: (f, fa) => M.flatMap((a) => (a.isNone() ? M.of(O.Option.none()) : f(a.get())), fa),
+    flatMap: (f, fa) => M.flatMap((a) => (a.isNone() ? M.of(O.none()) : f(a.get())), fa),
   })
 }

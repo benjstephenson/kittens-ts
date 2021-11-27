@@ -3,18 +3,18 @@ import { tuple } from '../functions'
 export const TaskURI = 'Task'
 export type TaskURI = typeof TaskURI
 
-export class Task<T> {
-  readonly _URI!: TaskURI
-  readonly _A!: T
+export class Task<A> {
+  readonly _F!: TaskURI
+  readonly _A!: A
   readonly tag = 'Task'
 
-  private constructor(private thunk: () => Promise<T>) {}
+  private constructor(private thunk: () => Promise<A>) {}
 
-  static ofPromiseCtor<T>(executor: (resolve: (x: T) => void, reject: (x: any) => void) => void): Task<T> {
+  static ofPromiseCtor<A>(executor: (resolve: (x: A) => void, reject: (x: any) => void) => void): Task<A> {
     return new Task(() => new Promise(executor))
   }
 
-  static ofCallback<T>(fn: (cb: (err: any, val: T) => void) => void): Task<T> {
+  static ofCallback<A>(fn: (cb: (err: any, val: A) => void) => void): Task<A> {
     return Task.ofPromiseCtor((resolve, reject) =>
       fn((err, data) => {
         if (err) {
@@ -26,16 +26,16 @@ export class Task<T> {
     )
   }
 
-  static of<T>(fn: () => Promise<T>): Task<T> {
+  static of<A>(fn: () => Promise<A>): Task<A> {
     return new Task(fn)
   }
 
-  static done<T>(t: T): Task<T> {
+  static done<A>(t: A): Task<A> {
     return new Task(() => Promise.resolve(t))
   }
 
-  then<TResult1 = T, TResult2 = never>(
-    onfulfilled: (value: T) => TResult1 | PromiseLike<TResult1>,
+  then<TResult1 = A, TResult2 = never>(
+    onfulfilled: (value: A) => TResult1 | PromiseLike<TResult1>,
     onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
   ): PromiseLike<TResult1 | TResult2> {
     return this.thunk().then(
@@ -44,17 +44,17 @@ export class Task<T> {
     )
   }
 
-  toPromise(): Promise<T> {
+  toPromise(): Promise<A> {
     return this.thunk()
   }
 
-  static sequence<T>(elts: Array<Task<T>>): Task<Array<T>> {
+  static sequence<A>(elts: Array<Task<A>>): Task<Array<A>> {
     return Task.traverse(elts, (x) => x)
   }
 
-  static sequenceT<T extends Array<Task<any>>>(
-    ...t: T & { readonly 0: Task<any> }
-  ): Task<{ [K in keyof T]: [T[K]] extends [Task<infer U>] ? U : never }>
+  static sequenceT<A extends Array<Task<any>>>(
+    ...t: A & { readonly 0: Task<any> }
+  ): Task<{ [K in keyof A]: [A[K]] extends [Task<infer U>] ? U : never }>
   static sequenceT<U>(...list: Array<Task<U>>) {
     return Task.sequence(list).map((results) => {
       const [head, ...tail] = results
@@ -62,7 +62,7 @@ export class Task<T> {
     })
   }
 
-  static traverse<T, U>(elts: Array<T>, fn: (x: T) => Task<U>): Task<Array<U>> {
+  static traverse<A, U>(elts: Array<A>, fn: (x: A) => Task<U>): Task<Array<U>> {
     return new Task(() => Promise.all(elts.map((x) => fn(x).toPromise())))
   }
 
@@ -86,19 +86,19 @@ export class Task<T> {
     return (p1, p2) => p1.flatMap((a1) => p2.map((a2) => fn(a1, a2)))
   }
 
-  static lift<T extends any[], U>(fn: (...args: T) => Promise<U>): (...args: T) => Task<U> {
+  static lift<T extends any[], A>(fn: (...args: T) => Promise<A>): (...args: T) => Task<A> {
     return (...args: T) => Task.of(() => fn(...args))
   }
 
-  map<U>(fn: (x: T) => U): Task<U> {
-    return new Task<U>(() => this.thunk().then((x) => fn(x)))
+  map<B>(fn: (x: A) => B): Task<B> {
+    return new Task<B>(() => this.thunk().then((x) => fn(x)))
   }
 
-  flatMap<U>(fn: (x: T) => Task<U>): Task<U> {
+  flatMap<B>(fn: (x: A) => Task<B>): Task<B> {
     return Task.of(() => this.toPromise().then((t) => fn(t).toPromise()))
   }
 
-  transform<U>(fn: (x: Task<T>) => U): U {
+  transform<B>(fn: (x: Task<A>) => B): B {
     return fn(this)
   }
 }
