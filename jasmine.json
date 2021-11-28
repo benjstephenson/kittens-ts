@@ -7,6 +7,6 @@
       }
     }
   ],
-  "spec_dir": "test",
-  "spec_files": ["**/*.micro.ts"]
+  "spec_dir": "dist/test",
+  "spec_files": ["**/*.micro.js"]
 }
