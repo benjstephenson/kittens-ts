@@ -1,12 +1,12 @@
-import { Eq, equals, getInstance, Monoid, Semigroup } from './hkt'
+import { Eq, equals, makeInstance, Monoid, Semigroup } from './hkt'
 
-export const eq: Eq<string> = getInstance({ equals })
+export const eq: Eq<string> = makeInstance({ equals })
 
-export const semigroup: Semigroup<string> = getInstance({
+export const semigroup: Semigroup<string> = makeInstance({
   concat: (a, b) => a + b,
 })
 
-export const monoid: Monoid<string> = getInstance({
+export const monoid: Monoid<string> = makeInstance({
   ...semigroup,
   empty: () => '',
 })

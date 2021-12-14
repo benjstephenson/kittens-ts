@@ -1,5 +1,5 @@
 import * as E from '../Either'
-import { getInstance, Applicative, Param, URIS, Tail, URI, UHKT, Monad } from '../hkt'
+import { makeInstance, Applicative, Param, URIS, Tail, URI, UHKT, Monad } from '../hkt'
 
 type PS<C, P extends Param> = C extends ({} | P) & infer X ? X : C
 
@@ -7,7 +7,7 @@ export function applicative<F extends URIS, C>(
   M: Applicative<F, C>
 ): Applicative<[F[0], ...Tail<F>, URI<E.EitherURI>], PS<C, 'E'>>
 export function applicative<F>(M: Applicative<UHKT<F>>) {
-  return getInstance<Applicative<[UHKT<F>[0], URI<E.EitherURI>]>>({
+  return makeInstance<Applicative<[UHKT<F>[0], URI<E.EitherURI>]>>({
     of: (a) => M.of(E.applicative.of(a)),
     ap: (fab, fa) =>
       M.ap(
@@ -22,7 +22,7 @@ export function applicative<F>(M: Applicative<UHKT<F>>) {
 export function monad<F extends URIS, C>(M: Monad<F, C>): Monad<[F[0], ...Tail<F>, URI<E.EitherURI>], C>
 export function monad<F>(M: Monad<UHKT<F>>) {
   const appl = applicative(M)
-  return getInstance<Monad<[UHKT<F>[0], URI<E.EitherURI>]>>({
+  return makeInstance<Monad<[UHKT<F>[0], URI<E.EitherURI>]>>({
     ...appl,
     flatMap: (f, fa) => M.flatMap((a) => (a.isLeft() ? M.of(E.rightCast(a)) : f(a.get())), fa),
   })

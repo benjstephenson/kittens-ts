@@ -1,22 +1,22 @@
 import { Task, TaskURI } from '.'
-import { getInstance, Applicative, Apply, Functor, Monad, URI } from '../hkt'
+import { makeInstance, Applicative, Apply, Functor, Monad, URI } from '../hkt'
 import { Kleisli } from '../Kleisli'
 
-export const functor = getInstance<Functor<[URI<TaskURI>]>>({
+export const functor = makeInstance<Functor<[URI<TaskURI>]>>({
   map: (f, fa) => fa.map(f),
 })
 
-export const apply = getInstance<Apply<[URI<TaskURI>]>>({
+export const apply = makeInstance<Apply<[URI<TaskURI>]>>({
   ...functor,
   ap: (fab, fa) => fab.flatMap((ab) => fa.map((a) => ab(a))),
 })
 
-export const applicative = getInstance<Applicative<[URI<TaskURI>]>>({
+export const applicative = makeInstance<Applicative<[URI<TaskURI>]>>({
   ...apply,
   of: (a) => Task.of(() => Promise.resolve(a)),
 })
 
-export const monad = getInstance<Monad<[URI<TaskURI>]>>({
+export const monad = makeInstance<Monad<[URI<TaskURI>]>>({
   ...applicative,
 
   //pure: applicative.of,

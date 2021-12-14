@@ -1,8 +1,15 @@
 {
-  "name": "kittens-ts",
+  "name": "@benjstephenson/kittens-ts",
   "version": "0.0.1",
   "description": "",
   "main": "index.ts",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/benjstephenson/kittens-ts"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/benjstephenson"
+  },
   "scripts": {
     "compile": "tsc --extendedDiagnostics -p .",
     "test": "jasmine --config=jasmine.json",
