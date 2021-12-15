@@ -6,7 +6,7 @@ export const none = <A>(): Option<A> => new None()
 
 export const some = <A>(a: A): Option<A> => new Some(a)
 
-export const of: <A>(a: A) => Option<A> = (a) => (a === undefined ? none() : some(a))
+export const of: <A>(a: A | undefined) => Option<A> = (a) => (a === undefined ? none() : some(a))
 
 export const map: <A, B>(f: (a: A) => B, fa: Option<A>) => Option<B> = (f, fa) =>
   fa.isSome() ? some(f(fa.get())) : none()

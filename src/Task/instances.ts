@@ -16,14 +16,15 @@ export const applicative = makeInstance<Applicative<[URI<TaskURI>]>>({
   of: (a) => Task.of(() => Promise.resolve(a)),
 })
 
-export const monad = makeInstance<Monad<[URI<TaskURI>]>>({
-  ...applicative,
+export const monad = <C>() =>
+  makeInstance<Monad<[URI<TaskURI>], C>>({
+    ...applicative,
 
-  //pure: applicative.of,
+    //pure: applicative.of,
 
-  flatMap: (f, fa) => fa.flatMap(f),
-})
+    flatMap: (f, fa) => fa.flatMap(f),
+  })
 
 export const kleisli = <E, A, B>(f: (a: A) => Task<B>) => {
-  return Kleisli.of<[URI<TaskURI>], {}, never, never, E, A, B>(monad, f)
+  return Kleisli.of<[URI<TaskURI>], {}, never, never, E, A, B>(monad(), f)
 }
