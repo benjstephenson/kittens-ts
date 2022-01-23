@@ -1,5 +1,5 @@
 import { None, Option, Some } from './Option'
-import { isNonEmptyArray } from '../NonEmptyArray/functions'
+import { isNonEmptyArray } from '../NonEmptyArray'
 import { tuple } from '../functions'
 
 export const none = <A>(): Option<A> => new None()
