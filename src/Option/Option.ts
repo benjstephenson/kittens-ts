@@ -1,19 +1,23 @@
+import { OptionF } from '.'
 import { flatMap, map } from './functions'
 
 export type Option<A> = Some<A> | None<A>
 export const OptionURI = 'Option'
 export type OptionURI = typeof OptionURI
 
-export class Some<A> {
-  readonly _F!: OptionURI
-  readonly _A!: A
+export class Some<A> implements OptionF {
   readonly tag = 'Some'
+  readonly A!: A
+  type!: Option<this['A']>
 
   constructor(private readonly value: A) {}
+  R?: unknown
+  E?: unknown
 
   isSome(): this is Some<A> {
     return true
   }
+
   isNone(): this is None<A> {
     return false
   }
@@ -39,10 +43,10 @@ export class Some<A> {
   }
 }
 
-export class None<A> {
-  readonly _F!: OptionURI
-  readonly _A!: A
+export class None<A> implements OptionF {
   readonly tag = 'None'
+  readonly A!: A
+  type!: Option<this['A']>
 
   isSome(): this is Some<A> {
     return false

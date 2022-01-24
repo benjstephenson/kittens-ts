@@ -1,27 +1,34 @@
-import { makeInstance, Applicative, Apply, Eq, Functor, Monad, URI } from '../hkt'
-import * as O from '.'
+import type { Option } from './Option'
+import * as fns from './functions'
+import { Apply, Functor, HKT, Monad, Applicative, SemigroupF, Monoid, Semigroup } from '../hkt'
 
-export const functor = makeInstance<Functor<[URI<O.OptionURI>]>>({
-  map: O.map,
-})
+export interface OptionF extends HKT {
+  readonly type: Option<this['A']>
+}
 
-export const apply = makeInstance<Apply<[URI<O.OptionURI>]>>({
-  ...functor,
-  ap: O.ap,
-})
+export const semigroup: SemigroupF<OptionF> = {
+  concat: (semigroupA) => (fa, fb) => fns.flatMap((a) => fns.map((b) => semigroupA.concat(a, b), fb), fa),
+}
 
-export const applicative = makeInstance<Applicative<[URI<O.OptionURI>]>>({
+export const monoid: Monoid<OptionF> = {
+  ...semigroup,
+  empty: fns.none,
+}
+
+export const functor: Functor<OptionF> = {
+  map: fns.map,
+}
+
+export const apply: Apply<OptionF> = {
+  ap: fns.ap,
+}
+
+export const applicative: Applicative<OptionF> = {
   ...apply,
-  of: O.of,
-})
+  of: fns.of,
+}
 
-export const monad = makeInstance<Monad<[URI<O.OptionURI>]>>({
+export const monad: Monad<OptionF> = {
   ...applicative,
-
-  flatMap: O.flatMap,
-})
-
-export const eq = <A>(E: Eq<A>): Eq<O.Option<A>> =>
-  makeInstance({
-    equals: (a, b) => (a.isNone() && b.isNone()) || a.flatMap((av) => b.map((bv) => E.equals(av, bv))).getOrElse(false),
-  })
+  flatMap: fns.flatMap,
+}

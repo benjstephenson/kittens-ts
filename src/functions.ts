@@ -18,7 +18,7 @@ export function pipe(a: unknown, ab?: Function, bc?: Function, cd?: Function): u
       return ab!(a)
     case 3:
       return bc!(ab!(a))
-    case 4:
+    default:
       return cd!(bc!(ab!(a)))
   }
 }
