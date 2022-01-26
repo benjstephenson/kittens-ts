@@ -5,10 +5,8 @@ export type Option<A> = Some<A> | None<A>
 export const OptionURI = 'Option'
 export type OptionURI = typeof OptionURI
 
-export class Some<A> implements OptionF {
+export class Some<A> {
   readonly tag = 'Some'
-  readonly A!: A
-  type!: Option<this['A']>
 
   constructor(private readonly value: A) {}
   R?: unknown
@@ -43,10 +41,8 @@ export class Some<A> implements OptionF {
   }
 }
 
-export class None<A> implements OptionF {
+export class None<A> {
   readonly tag = 'None'
-  readonly A!: A
-  type!: Option<this['A']>
 
   isSome(): this is Some<A> {
     return false

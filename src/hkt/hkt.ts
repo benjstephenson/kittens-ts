@@ -23,3 +23,7 @@ export type Kind<F extends HKT, R, E, A> = F extends { readonly type: unknown }
       readonly _E: () => E
       readonly _A: () => A
     }
+
+export interface ComposeF<F extends HKT, G extends HKT> extends HKT {
+  readonly type: Kind<F, this['R'], this['E'], Kind<G, this['R'], this['E'], this['A']>>
+}

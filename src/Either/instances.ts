@@ -1,25 +1,54 @@
-// import * as E from '.'
-// import { makeInstance, Applicative, Apply, BiFunctor, Functor, Monad, URI } from '../hkt'
+import type { Either } from './Either'
+import * as fns from './functions'
+import { Apply, Functor, HKT, Monad, Applicative, Monoid, Semigroup, ComposeF, EitherT, Kind } from '../hkt'
 
-// export const functor = makeInstance<Functor<[URI<E.EitherURI>]>>({
-//   map: E.map,
-// })
+export interface EitherF extends HKT {
+  readonly type: Either<this['E'], this['A']>
+}
 
-// export const bifunctor = makeInstance<BiFunctor<[URI<E.EitherURI>]>>({
-//   bimap: (fe, fa) => (F) => F.bimap({ Left: fe, Right: fa }),
-// })
+export const getSemigroup = <E, A>(S: Semigroup<A>): Semigroup<Either<E, A>> => ({
+  concat: (x, y) => (y.isLeft() ? x : x.isLeft() ? y : fns.right(S.concat(x.get(), y.get()))),
+})
 
-// export const apply = makeInstance<Apply<[URI<E.EitherURI>]>>({
-//   ...functor,
-//   ap: E.ap,
-// })
+export const functor: Functor<EitherF> = {
+  map: fns.map,
+}
 
-// export const applicative = makeInstance<Applicative<[URI<E.EitherURI>]>>({
-//   ...apply,
-//   of: E.right,
-// })
+export const apply: Apply<EitherF> = {
+  ...functor,
+  ap: fns.ap,
+}
 
-// export const monad = makeInstance<Monad<[URI<E.EitherURI>]>>({
-//   ...applicative,
-//   flatMap: E.flatMap,
-//})
+export const applicative: Applicative<EitherF> = {
+  ...apply,
+  of: fns.of,
+}
+
+export const monad: Monad<EitherF> = {
+  ...applicative,
+  flatMap: fns.flatMap,
+}
+
+export function eitherT<F extends HKT>(F: Monad<F>): Monad<EitherT<F>> {
+  return {
+    ap: (fa, fab) => F.flatMap((a) => F.map((ab) => fns.ap(a, ab), fab), fa),
+    of: (a) => F.of(fns.right(a)),
+    map: (ff, faa) => F.map((aa) => fns.map(ff, aa), faa),
+
+    flatMap: <R, R2, E, E2, A, B>(
+      f: (a: A) => Kind<F, R2, never, Either<E2, B>>,
+      faa: Kind<F, R, never, Either<E, A>>
+    ): Kind<F, R & R2, never, Either<E | E2, B>> =>
+      F.flatMap(
+        (aa) =>
+          fns.fold(
+            {
+              Left: (l) => F.of(fns.left<E | E2, B>(l)),
+              Right: (r) => f(r),
+            },
+            aa
+          ),
+        faa
+      ),
+  }
+}

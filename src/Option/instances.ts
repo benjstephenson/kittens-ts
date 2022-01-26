@@ -1,25 +1,25 @@
 import type { Option } from './Option'
 import * as fns from './functions'
-import { Apply, Functor, HKT, Monad, Applicative, SemigroupF, Monoid, Semigroup } from '../hkt'
+import { Apply, Functor, HKT, Monad, Applicative, Monoid, Semigroup, ComposeF } from '../hkt'
 
 export interface OptionF extends HKT {
   readonly type: Option<this['A']>
 }
 
-export const semigroup: SemigroupF<OptionF> = {
-  concat: (semigroupA) => (fa, fb) => fns.flatMap((a) => fns.map((b) => semigroupA.concat(a, b), fb), fa),
-}
+export const getSemigroup = <A>(S: Semigroup<A>): Semigroup<Option<A>> => ({
+  concat: (x, y) => (x.isNone() ? y : y.isNone() ? x : fns.some(S.concat(x.get(), y.get()))),
+})
 
-export const monoid: Monoid<OptionF> = {
-  ...semigroup,
-  empty: fns.none,
-}
+export const getMonoid = <A>(): Monoid<Option<A>> => ({
+  empty: fns.none(),
+})
 
 export const functor: Functor<OptionF> = {
   map: fns.map,
 }
 
 export const apply: Apply<OptionF> = {
+  ...functor,
   ap: fns.ap,
 }
 
@@ -31,4 +31,13 @@ export const applicative: Applicative<OptionF> = {
 export const monad: Monad<OptionF> = {
   ...applicative,
   flatMap: fns.flatMap,
+}
+
+export function optionT<F extends HKT>(F: Monad<F>): Monad<ComposeF<F, OptionF>> {
+  return {
+    ap: (fa, fab) => F.flatMap((a) => F.map((ab) => fns.ap(a, ab), fab), fa),
+    of: (a) => F.of(fns.some(a)),
+    map: (f, fa) => F.map((a) => fns.map(f, a), fa),
+    flatMap: (f, fa) => F.flatMap((o) => (o.isNone() ? F.of(fns.none()) : f(o.get())), fa),
+  }
 }

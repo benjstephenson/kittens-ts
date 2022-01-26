@@ -10,14 +10,14 @@ describe('Option instances', () => {
     concat: (a, b) => a + b,
   }
 
-  const optionConcat = O.semigroup.concat(intSemigroup)
+  const optionSemigroup = O.getSemigroup(intSemigroup)
 
   describe('semigroup laws', () => {
     it('associativity', () => {
       fc.assert(
         fc.property(fc.integer(), fc.integer(), (a, b) => {
-          assertThat(optionConcat(O.applicative.of(a), O.applicative.of(b))).is(
-            optionConcat(O.applicative.of(b), O.applicative.of(a))
+          assertThat(optionSemigroup.concat(O.applicative.of(a), O.applicative.of(b))).is(
+            optionSemigroup.concat(O.applicative.of(b), O.applicative.of(a))
           )
         })
       )
@@ -29,7 +29,7 @@ describe('Option instances', () => {
       fc.assert(
         fc.property(fc.integer(), (value) => {
           const some = O.some(value)
-          assertThat(optionConcat(O.none(), some)).is(O.none())
+          assertThat(optionSemigroup.concat(O.none(), some)).is(some)
         })
       )
     })
@@ -38,9 +38,23 @@ describe('Option instances', () => {
       fc.assert(
         fc.property(fc.integer(), (value) => {
           const some = O.some(value)
-          assertThat(optionConcat(some, O.none())).is(O.none())
+          assertThat(optionSemigroup.concat(some, O.none())).is(some)
         })
       )
+    })
+
+    it('both something', () => {
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (a, b) => {
+          const someA = O.some(a)
+          const someB = O.some(b)
+          assertThat(optionSemigroup.concat(someA, someB)).is(O.of(intSemigroup.concat(a, b)))
+        })
+      )
+    })
+
+    it('both empty', () => {
+      assertThat(optionSemigroup.concat(O.none(), O.none())).is(O.none())
     })
   })
 
