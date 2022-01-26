@@ -1,16 +1,37 @@
-import { OptionF } from '.'
+import * as Eq from '../Equal'
 import { flatMap, map } from './functions'
+import { getEquals } from './instances'
 
 export type Option<A> = Some<A> | None<A>
 export const OptionURI = 'Option'
 export type OptionURI = typeof OptionURI
 
-export class Some<A> {
+interface OptionFns<A> {
+  isSome(): this is Some<A>
+
+  isNone(): this is None<A>
+
+  equals(other: Option<A>, eq: Eq.Equal<A>): boolean
+
+  map<B>(f: (a: A) => B): Option<B>
+
+  flatMap<B>(f: (a: A) => Option<B>): Option<B>
+
+  getOrElse(_default: A): A
+
+  getOrCall(f: () => A): A
+}
+
+export class Some<A> implements OptionFns<A> {
   readonly tag = 'Some'
 
   constructor(private readonly value: A) {}
   R?: unknown
   E?: unknown
+
+  equals(other: Option<A>, eq = Eq.withDefault<A>()): boolean {
+    return getEquals(eq).equals(this, other)
+  }
 
   isSome(): this is Some<A> {
     return true
@@ -36,19 +57,24 @@ export class Some<A> {
     return this.value
   }
 
-  getOrCall(f: () => A): A {
+  getOrCall(_f: () => A): A {
     return this.value
   }
 }
 
-export class None<A> {
+export class None<A> implements OptionFns<A> {
   readonly tag = 'None'
 
   isSome(): this is Some<A> {
     return false
   }
+
   isNone(): this is None<A> {
     return true
+  }
+
+  equals(other: Option<A>, eq = Eq.withDefault<A>()): boolean {
+    return getEquals(eq).equals(this, other)
   }
 
   map<B>(f: (a: A) => B): Option<B> {

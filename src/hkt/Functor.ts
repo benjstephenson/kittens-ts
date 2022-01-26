@@ -23,20 +23,24 @@ export interface Apply<F extends HKT> extends Typeclass<F>, Functor<F> {
 export const getApplySemigroup =
   <F extends HKT, R, E>(F: Apply<F>) =>
   <A>(S: Semigroup<A>): Semigroup<Kind<F, R, E, A>> => ({
-    concat: (x, y) =>
+    concat: (fa, fb) =>
       F.ap(
-        y,
-        F.map((a) => (b) => S.concat(a, b), x)
+        fa,
+        F.map((a) => (b) => S.concat(a, b), fb)
       ),
   })
 
 export const widenFA = <F extends HKT, R, E, A, A2>(self: Kind<F, R, E, A>): Kind<F, R, E, A2> => self as any
 
+export interface Contramap<F extends HKT> extends Typeclass<F> {
+  readonly contramap: <R, E, A, B>(f: (b: B) => A, fa: Kind<F, R, E, A>) => Kind<F, R, E, B>
+}
+
 export interface Applicative<F extends HKT> extends Typeclass<F>, Apply<F> {
   readonly of: <A>(a: A) => Kind<F, unknown, never, A>
 }
 
-export interface Monad<F extends HKT> extends Typeclass<F>, Applicative<F>, Apply<F> {
+export interface Monad<F extends HKT> extends Typeclass<F>, Applicative<F> {
   readonly flatMap: <R, R2, E, E2, A, B>(
     f: (a: A) => Kind<F, R2, E2, B>,
     fa: Kind<F, R, E, A>

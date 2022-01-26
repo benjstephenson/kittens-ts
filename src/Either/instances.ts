@@ -1,6 +1,7 @@
 import type { Either } from './Either'
 import * as fns from './functions'
 import { Apply, Functor, HKT, Monad, Applicative, Monoid, Semigroup, ComposeF, EitherT, Kind } from '../hkt'
+import * as Eq from '../Equal'
 
 export interface EitherF extends HKT {
   readonly type: Either<this['E'], this['A']>
@@ -28,6 +29,15 @@ export const monad: Monad<EitherF> = {
   ...applicative,
   flatMap: fns.flatMap,
 }
+
+export const getEquals = <E, A>(eqE: Eq.Equal<E>, eqA: Eq.Equal<A>): Eq.Equal<Either<E, A>> => ({
+  equals: (x, y) =>
+    x.isLeft() && y.isLeft()
+      ? eqE.equals(x.get(), y.get())
+      : x.isRight() && y.isRight()
+      ? eqA.equals(x.get(), y.get())
+      : false,
+})
 
 export function eitherT<F extends HKT>(F: Monad<F>): Monad<EitherT<F>> {
   return {

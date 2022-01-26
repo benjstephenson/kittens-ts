@@ -1,4 +1,6 @@
 import * as O from '../Option'
+import { getEquals } from './instances'
+import * as Eq from '../Equal'
 import { ap, bimap, flatMap, map, rightWiden } from './functions'
 
 export type Either<E, A> = Left<E, A> | Right<E, A>
@@ -12,6 +14,7 @@ interface EitherFuns<E, A> {
 
   getOrElse(other: A): A
 
+  equals(other: Either<E, A>, eqE: Eq.Equal<E>, eqA: Eq.Equal<A>): boolean
   //rightCast<RR>(): Left<E, RR>
 
   ap<B>(fab: Either<E, (r: A) => B>): Either<E, B>
@@ -38,6 +41,10 @@ export class Left<E, A> implements EitherFuns<E, A> {
 
   isRight(): this is Right<E, A> {
     return false
+  }
+
+  equals(other: Either<E, A>, eqE = Eq.withDefault<E>(), eqA = Eq.withDefault<A>()): boolean {
+    return getEquals(eqE, eqA).equals(this, other)
   }
 
   get(): E {
@@ -94,7 +101,11 @@ export class Right<E, A> implements EitherFuns<E, A> {
     return this.value
   }
 
-  getOrElse(other: A): A {
+  equals(other: Either<E, A>, eqE = Eq.withDefault<E>(), eqA = Eq.withDefault<A>()): boolean {
+    return getEquals(eqE, eqA).equals(this, other)
+  }
+
+  getOrElse(_other: A): A {
     return this.value
   }
 

@@ -1,6 +1,7 @@
 import type { Option } from './Option'
 import * as fns from './functions'
 import { Apply, Functor, HKT, Monad, Applicative, Monoid, Semigroup, ComposeF, MonadId, getApply } from '../hkt'
+import { Equal } from '../Equal'
 
 export interface OptionF extends HKT {
   readonly type: Option<this['A']>
@@ -12,6 +13,10 @@ export const getSemigroup = <A>(S: Semigroup<A>): Semigroup<Option<A>> => ({
 
 export const getMonoid = <A>(): Monoid<Option<A>> => ({
   empty: fns.none(),
+})
+
+export const getEquals = <A>(eq: Equal<A>): Equal<Option<A>> => ({
+  equals: (a, b) => a.isSome() && b.isSome() && eq.equals(a.get(), b.get()),
 })
 
 export const functor: Functor<OptionF> = {

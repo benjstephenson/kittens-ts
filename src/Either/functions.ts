@@ -1,4 +1,4 @@
-import { widenFA } from '../hkt'
+import { pipe } from '../functions'
 import { Either, Left, Right } from './Either'
 
 export const left: <E, A>(l: E) => Either<E, A> = (l) => new Left(l)
@@ -29,16 +29,38 @@ export const map_: <E, A, B>(f: (a: A) => B) => (fa: Either<E, A>) => Either<E, 
 export const flatMap = <E, E2, A, B>(f: (a: A) => Either<E2, B>, fa: Either<E, A>): Either<E | E2, B> =>
   fa.isLeft() ? widenA(fa) : f(fa.get())
 
+export const flatMap_ =
+  <E, E2, A, B>(f: (a: A) => Either<E2, B>) =>
+  (fa: Either<E, A>): Either<E | E2, B> =>
+    flatMap(f, fa)
+
 export const bimap: <E, E2, A, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }, fa: Either<E, A>) => Either<E2, B> = (
   fo,
   fa
 ) => (fa.isLeft() ? left(fo.Left(fa.get())) : right(fo.Right(fa.get())))
+
+export const bimap_: <E, E2, A, B>(fo: {
+  Left: (e: E) => E2
+  Right: (a: A) => B
+}) => (fa: Either<E, A>) => Either<E2, B> = (fo) => (fa) => bimap(fo, fa)
 
 export const fold: <E, E2, A, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }, fa: Either<E, A>) => E2 | B = (
   fo,
   fa
 ) => (fa.isLeft() ? fo.Left(fa.get()) : fo.Right(fa.get()))
 
+export const fold_: <E, E2, A, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }) => (fa: Either<E, A>) => E2 | B =
+  (fo) => (fa) =>
+    fold(fo, fa)
+
 export const of: <E, A>(a: A) => Either<E, A> = (a) => right(a)
 
 export const lift: <E, A, B>(f: (a: A) => B) => (fa: Either<E, A>) => Either<E, B> = (f) => map_(f)
+
+const f = (x: number): Either<string, number> => (x > 1 ? left('oh dear') : right(x))
+const g = (x: number): Either<boolean, string> => (x > 1 ? left(false) : right(x.toString()))
+
+const b = right<string, number>(1).flatMap(f).flatMap(g)
+const a = flatMap(g, flatMap(f, left<number, number>(1)))
+
+const c = pipe(left<number, number>(1), flatMap_(f), flatMap_(g))
