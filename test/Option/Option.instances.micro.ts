@@ -123,4 +123,41 @@ describe('Option instances', () => {
       )
     })
   })
+
+  describe('monadic laws', () => {
+    const f = (x: number) => O.monad.of(inc(x))
+
+    it('left identity', () => {
+      fc.assert(
+        fc.property(fc.integer(), (value) => {
+          const pure = O.monad.of(value)
+
+          assertThat(O.monad.flatMap(f, pure)).is(f(value))
+        })
+      )
+    })
+
+    it('right identity', () => {
+      fc.assert(
+        fc.property(fc.integer(), (value) => {
+          const pure = O.monad.of(value)
+
+          assertThat(O.monad.flatMap(O.monad.of, pure)).is(pure)
+        })
+      )
+    })
+
+    it('associativity', () => {
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), (a, b) => {
+          // m.chain(f).chain(g) === m.chain(x => f(x).chain(g))
+          const pure = O.monad.of(a)
+
+          assertThat(O.monad.flatMap(f, O.monad.flatMap(f, pure))).is(
+            O.monad.flatMap((x) => O.monad.flatMap(f, f(x)), pure)
+          )
+        })
+      )
+    })
+  })
 })

@@ -61,3 +61,8 @@ export const MonadId: Monad<IdF> = {
 export interface EitherT<F extends HKT> extends HKT {
   readonly type: Kind<F, this['R'], never, Either<this['E'], this['A']>>
 }
+
+export const getApply = <F extends HKT>(F: Monad<F>): Apply<F> => ({
+  map: F.map,
+  ap: F.ap,
+})

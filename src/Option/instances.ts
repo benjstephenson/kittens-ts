@@ -1,6 +1,6 @@
 import type { Option } from './Option'
 import * as fns from './functions'
-import { Apply, Functor, HKT, Monad, Applicative, Monoid, Semigroup, ComposeF } from '../hkt'
+import { Apply, Functor, HKT, Monad, Applicative, Monoid, Semigroup, ComposeF, MonadId, getApply } from '../hkt'
 
 export interface OptionF extends HKT {
   readonly type: Option<this['A']>
@@ -41,3 +41,6 @@ export function optionT<F extends HKT>(F: Monad<F>): Monad<ComposeF<F, OptionF>>
     flatMap: (f, fa) => F.flatMap((o) => (o.isNone() ? F.of(fns.none()) : f(o.get())), fa),
   }
 }
+
+const optionMonad = optionT(MonadId)
+const apply2: Apply<OptionF> = getApply(optionMonad)
