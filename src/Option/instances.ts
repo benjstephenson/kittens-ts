@@ -1,7 +1,9 @@
 import type { Option } from './Option'
 import * as fns from './functions'
-import { Apply, Functor, HKT, Monad, Applicative, Monoid, Semigroup, ComposeF, MonadId, getApply } from '../hkt'
+import { Apply, Functor, HKT, Monad, Applicative, ComposeF, identityM, getApply } from '../hkt'
 import { Equal } from '../Equal'
+import { Semigroup } from '../Semigroup'
+import { Monoid } from '../Monoid'
 
 export interface OptionF extends HKT {
   readonly type: Option<this['A']>
@@ -33,10 +35,11 @@ export const applicative: Applicative<OptionF> = {
   of: fns.of,
 }
 
-export const monad: Monad<OptionF> = {
-  ...applicative,
-  flatMap: fns.flatMap,
-}
+export const monad: Monad<OptionF> = optionT(identityM)
+// export const monad: Monad<OptionF> = {
+//   ...applicative,
+//   flatMap: fns.flatMap,
+// }
 
 export function optionT<F extends HKT>(F: Monad<F>): Monad<ComposeF<F, OptionF>> {
   return {
@@ -47,5 +50,5 @@ export function optionT<F extends HKT>(F: Monad<F>): Monad<ComposeF<F, OptionF>>
   }
 }
 
-const optionMonad = optionT(MonadId)
+const optionMonad = optionT(identityM)
 const apply2: Apply<OptionF> = getApply(optionMonad)

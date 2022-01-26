@@ -9,6 +9,15 @@ describe('Equals instances', () => {
         assertThat(Eq.number.equals(value, value)).is(true)
       })
     )
+
+    fc.assert(
+      fc.property(
+        fc.tuple(fc.integer(), fc.integer()).filter(([a, b]) => a !== b),
+        ([a, b]) => {
+          assertThat(Eq.number.equals(a, b)).is(false)
+        }
+      )
+    )
   })
 
   it('string', () => {
@@ -16,6 +25,15 @@ describe('Equals instances', () => {
       fc.property(fc.string(), (value) => {
         assertThat(Eq.string.equals(value, value)).is(true)
       })
+    )
+
+    fc.assert(
+      fc.property(
+        fc.tuple(fc.string(), fc.string()).filter(([a, b]) => a !== b),
+        ([a, b]) => {
+          assertThat(Eq.string.equals(a, b)).is(false)
+        }
+      )
     )
   })
 
@@ -25,6 +43,15 @@ describe('Equals instances', () => {
         assertThat(Eq.boolean.equals(value, value)).is(true)
       })
     )
+
+    fc.assert(
+      fc.property(
+        fc.tuple(fc.boolean(), fc.boolean()).filter(([a, b]) => a !== b),
+        ([a, b]) => {
+          assertThat(Eq.boolean.equals(a, b)).is(false)
+        }
+      )
+    )
   })
 
   it('date', () => {
@@ -32,6 +59,15 @@ describe('Equals instances', () => {
       fc.property(fc.date(), (value) => {
         assertThat(Eq.date.equals(value, value)).is(true)
       })
+    )
+
+    fc.assert(
+      fc.property(
+        fc.tuple(fc.date(), fc.date()).filter(([a, b]) => a !== b),
+        ([a, b]) => {
+          assertThat(Eq.date.equals(a, b)).is(false)
+        }
+      )
     )
   })
 

@@ -97,8 +97,7 @@ describe('Either instances', () => {
 
     it('associativity', () => {
       fc.assert(
-        fc.property(fc.integer(), fc.integer(), (a, b) => {
-          // m.chain(f).chain(g) === m.chain(x => f(x).chain(g))
+        fc.property(fc.integer(), (a) => {
           const pure = E.monad.of(a)
 
           assertThat(E.monad.flatMap(f, E.monad.flatMap(f, pure))).is(

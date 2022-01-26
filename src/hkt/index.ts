@@ -1,2 +1,2 @@
-export * from './Functor'
+export * from './Typeclasses'
 export * from './hkt'

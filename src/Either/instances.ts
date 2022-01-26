@@ -1,7 +1,8 @@
 import type { Either } from './Either'
 import * as fns from './functions'
-import { Apply, Functor, HKT, Monad, Applicative, Monoid, Semigroup, ComposeF, EitherT, Kind } from '../hkt'
+import { Apply, Functor, HKT, Monad, Applicative, ComposeF, EitherT, Kind } from '../hkt'
 import * as Eq from '../Equal'
+import { Semigroup } from '../Semigroup'
 
 export interface EitherF extends HKT {
   readonly type: Either<this['E'], this['A']>

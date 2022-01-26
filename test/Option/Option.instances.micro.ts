@@ -2,7 +2,7 @@ import { assertThat } from 'mismatched'
 import * as O from '../../src/Option'
 import * as fc from 'fast-check'
 import { id } from '../../src/functions'
-import { Semigroup } from '../../src/hkt'
+import { Semigroup } from '../../src/Semigroup'
 
 describe('Option instances', () => {
   const inc = (n: number) => n + 1
