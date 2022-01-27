@@ -14,12 +14,16 @@ export interface Apply<F extends HKT> extends Functor<F> {
 
 export const widenFA = <F extends HKT, R, E, A, A2>(self: Kind<F, R, E, A>): Kind<F, R, E, A2> => self as any
 
-export interface Contramap<F extends HKT> extends Typeclass<F> {
+export interface Contravariant<F extends HKT> extends Typeclass<F> {
   readonly contramap: <R, E, A, B>(f: (b: B) => A, fa: Kind<F, R, E, A>) => Kind<F, R, E, B>
 }
 
 export interface Applicative<F extends HKT> extends Apply<F> {
   readonly of: <A>(a: A) => Kind<F, unknown, never, A>
+}
+
+export interface Foldable<F extends HKT> extends Typeclass<F> {
+  readonly fold: <R, E, A, B>(f: (acc: B, a: A) => B, init: B, fa: Kind<F, R, E, A>) => B
 }
 
 export interface Monad<F extends HKT> extends Applicative<F> {

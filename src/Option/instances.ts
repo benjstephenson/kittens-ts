@@ -1,19 +1,20 @@
 import type { Option } from './Option'
 import * as fns from './functions'
-import { Apply, Functor, HKT, Monad, Applicative, ComposeF, identityM, getApply } from '../hkt'
+import { Apply, Functor, HKT, Monad, Applicative, ComposeF, identityM, getApply, Foldable } from '../hkt'
 import { Equal } from '../Equal'
-import { Semigroup } from '../Semigroup'
+import * as Sg from '../Semigroup'
 import { Monoid } from '../Monoid'
 
 export interface OptionF extends HKT {
   readonly type: Option<this['A']>
 }
 
-export const getSemigroup = <A>(S: Semigroup<A>): Semigroup<Option<A>> => ({
+export const getSemigroup = <A>(S: Sg.Semigroup<A>): Sg.Semigroup<Option<A>> => ({
   concat: (x, y) => (x.isNone() ? y : y.isNone() ? x : fns.some(S.concat(x.get(), y.get()))),
 })
 
-export const getMonoid = <A>(): Monoid<Option<A>> => ({
+export const getMonoid = <A>(sg: Sg.Semigroup<A>): Monoid<Option<A>> => ({
+  ...getSemigroup(sg),
   empty: fns.none(),
 })
 
@@ -33,6 +34,10 @@ export const apply: Apply<OptionF> = {
 export const applicative: Applicative<OptionF> = {
   ...apply,
   of: fns.of,
+}
+
+export const foldable: Foldable<OptionF> = {
+  fold: (f, init, fa) => (fa.isNone() ? init : f(init, fa.get())),
 }
 
 export const monad: Monad<OptionF> = optionT(identityM)

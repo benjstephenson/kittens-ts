@@ -1,4 +1,5 @@
 import * as Eq from '../Equal'
+import * as E from '../Either'
 import { flatMap, map } from './functions'
 import { getEquals } from './instances'
 
@@ -20,6 +21,8 @@ interface OptionFns<A> {
   getOrElse(_default: A): A
 
   getOrCall(f: () => A): A
+
+  toEither<E>(e: E): E.Either<E, A>
 }
 
 export class Some<A> implements OptionFns<A> {
@@ -60,6 +63,10 @@ export class Some<A> implements OptionFns<A> {
   getOrCall(_f: () => A): A {
     return this.value
   }
+
+  toEither<E>(e: E): E.Either<E, A> {
+    return E.right(this.value)
+  }
 }
 
 export class None<A> implements OptionFns<A> {
@@ -91,5 +98,9 @@ export class None<A> implements OptionFns<A> {
 
   getOrCall(f: () => A): A {
     return f()
+  }
+
+  toEither<E>(e: E): E.Either<E, A> {
+    return E.left(e)
   }
 }

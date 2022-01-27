@@ -1,8 +1,16 @@
-import { Apply, HKT, Kind } from '../hkt'
+import { Apply, Foldable, HKT, Kind } from '../hkt'
 
 export interface Semigroup<A> {
   readonly concat: (a: A, b: A) => A
 }
+
+export interface SemigroupF extends HKT {
+  readonly type: Semigroup<this['A']>
+}
+
+export const from = <A>(concat: (x: A, y: A) => A): Semigroup<A> => ({
+  concat,
+})
 
 export const reverse = <A>(S: Semigroup<A>): Semigroup<A> => ({
   concat: (x, y) => S.concat(y, x),
@@ -39,6 +47,11 @@ export const either: Semigroup<number> = {
 export const array = <A>(): Semigroup<A[]> => ({
   concat: (a, b) => [...a, ...b],
 })
+
+export const fold =
+  <A>(S: Semigroup<A>, initial: A) =>
+  (values: ReadonlyArray<A>): A =>
+    values.reduce((acc, val) => S.concat(acc, val), initial)
 
 export const getApplySemigroup =
   <F extends HKT, R, E>(F: Apply<F>) =>

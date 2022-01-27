@@ -1,29 +1,14 @@
 import { assertThat } from 'mismatched'
 import * as fc from 'fast-check'
-import * as S from '../src/Semigroup'
+import { pipe } from '../src/functions'
 
-describe('Semigroup instances', () => {
+describe('Either instances', () => {
   const inc = (n: number) => n + 1
 
-  it('record semigroup', () => {
-    type Cat = {
-      name: string
-      age: number
-    }
-
-    const catConcat = S.record<Cat>({
-      name: S.string,
-      age: S.sum,
-    })
-
+  it('pipe', () => {
     fc.assert(
-      fc.property(fc.string(), fc.integer(), (name, age) => {
-        const cat: Cat = {
-          name,
-          age,
-        }
-
-        assertThat(catConcat.concat(cat, cat)).is({ name: `${name} ${name}`, age: age + age })
+      fc.property(fc.integer(), (value) => {
+        assertThat(pipe(value, inc, inc, inc, inc, inc)).is(value + 5)
       })
     )
   })
