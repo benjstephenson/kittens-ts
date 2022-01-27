@@ -44,14 +44,17 @@ export const bimap_: <E, E2, A, B>(fo: {
   Right: (a: A) => B
 }) => (fa: Either<E, A>) => Either<E2, B> = (fo) => (fa) => bimap(fo, fa)
 
-export const fold: <E, E2, A, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }, fa: Either<E, A>) => E2 | B = (
+export const fold = <E, A, B>(f: (acc: B, a: A) => B, init: B, fa: Either<E, A>): B =>
+  fa.isLeft() ? init : f(init, fa.get())
+
+export const match: <E, E2, A, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }, fa: Either<E, A>) => E2 | B = (
   fo,
   fa
 ) => (fa.isLeft() ? fo.Left(fa.get()) : fo.Right(fa.get()))
 
-export const fold_: <E, E2, A, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }) => (fa: Either<E, A>) => E2 | B =
+export const match_: <E, E2, A, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }) => (fa: Either<E, A>) => E2 | B =
   (fo) => (fa) =>
-    fold(fo, fa)
+    match(fo, fa)
 
 export const of: <E, A>(a: A) => Either<E, A> = (a) => right(a)
 

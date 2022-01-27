@@ -31,11 +31,8 @@ export const monad: Monad<EitherF> = {
   flatMap: fns.flatMap,
 }
 
-export const fold = <E, A, B>(f: (acc: B, a: A) => B, init: B, fa: Either<E, A>): B =>
-  fa.isLeft() ? init : f(init, fa.get())
-
 export const foldable: Foldable<EitherF> = {
-  fold,
+  fold: fns.fold,
 }
 
 export const getEquals = <E, A>(eqE: Eq.Equal<E>, eqA: Eq.Equal<A>): Eq.Equal<Either<E, A>> => ({
@@ -59,7 +56,7 @@ export function eitherT<F extends HKT>(F: Monad<F>): Monad<EitherT<F>> {
     ): Kind<F, R & R2, never, Either<E | E2, B>> =>
       F.flatMap(
         (aa) =>
-          fns.fold(
+          fns.match(
             {
               Left: (l) => F.of(fns.left<E | E2, B>(l)),
               Right: (r) => f(r),
