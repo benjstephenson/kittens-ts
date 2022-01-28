@@ -12,7 +12,7 @@ export interface Apply<F extends HKT> extends Functor<F> {
   ) => Kind<F, R & R2, E | E2, B>
 }
 
-export const widenFA = <F extends HKT, R, E, A, A2>(self: Kind<F, R, E, A>): Kind<F, R, E, A2> => self as any
+export const unsafeWidenFA = <F extends HKT, R, E, A, A2>(self: Kind<F, R, E, A>): Kind<F, R, E, A2> => self as any
 
 export interface Contravariant<F extends HKT> extends Typeclass<F> {
   readonly contramap: <R, E, A, B>(f: (b: B) => A, fa: Kind<F, R, E, A>) => Kind<F, R, E, B>
@@ -21,6 +21,24 @@ export interface Contravariant<F extends HKT> extends Typeclass<F> {
 export interface Applicative<F extends HKT> extends Apply<F> {
   readonly of: <R, E, A>(a: A) => Kind<F, R, E, A>
 }
+
+export interface Compose<F extends HKT, G extends HKT> extends HKT {
+  readonly type: Kind<F, this['R'], this['E'], Kind<G, this['R'], this['E'], this['A']>>
+}
+
+export const getCompose = <F extends HKT, G extends HKT>(
+  F: Applicative<F>,
+  G: Applicative<G>
+): Applicative<Compose<F, G>> => ({
+  of: (a) => F.of(G.of(a)),
+  ap: <R, R2, E, E2, A, B>(fga: Kind<F, R, E, Kind<G, R, E, A>>, fgab: Kind<F, R2, E2, Kind<G, R2, E2, (a: A) => B>>) =>
+    F.ap(
+      fgab,
+      F.map((ga) => (f) => G.ap(ga, f), fga)
+    ),
+
+  map: (fg, fga) => F.map((ga) => G.map(fg, ga), fga),
+})
 
 export interface Foldable<F extends HKT> extends Typeclass<F> {
   readonly fold: <R, E, A, B>(f: (acc: B, a: A) => B, init: B, fa: Kind<F, R, E, A>) => B

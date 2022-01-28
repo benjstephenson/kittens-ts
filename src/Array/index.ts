@@ -3,7 +3,7 @@ import * as O from '../Option'
 import { Applicative, Apply, HKT, Kind, Traversable } from '../hkt'
 import { Monoid } from '../Monoid'
 import { tuple } from '../functions'
-import { isNonEmptyArray } from '../NonEmptyArray'
+import { curry } from '../curry'
 
 export interface ArrayF extends HKT {
   readonly type: Array<this['A']>
@@ -52,22 +52,18 @@ export function sequenceT<F extends HKT>(
 ) => Kind<F, R, E, { [K in keyof T]: [T[K]] extends [Kind<F, R, E, infer A>] ? A : never }>
 export function sequenceT<F extends HKT>(F: Apply<F>): any {
   return <R, E, A>(...list: Array<Kind<F, R, E, A>>) => {
+    const curriedTupleCtr = curry(tuple)
+
     const head = list[0]
     const tail = list.splice(1)
-
-    // let acc = F.map((x) => tuple(x), head)
-
-    // for (let i = 1; i < list.length; i++) {
-    //   acc = F.ap(acc, F.map(v => (a) => tuple(...a, v), list[i])) as any
-    // }
 
     return tail.reduce(
       (acc, val) =>
         F.ap(
           acc,
           F.map((v) => (a) => tuple(...a, v), val)
-        ) as any,
-      F.map(tuple, head)
+        ),
+      F.map(curriedTupleCtr, head)
     )
   }
 }

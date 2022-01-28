@@ -76,14 +76,3 @@ export const sequence =
   <F extends HKT>(F: Applicative<F>) =>
   <R, E, A>(fa: Either<E, Kind<F, R, E, A>>): Kind<F, R, E, Either<E, A>> =>
     traverse(F)((x) => x, fa)
-
-const foo = right([1])
-const bar = sequence(A.applicative)(foo)
-
-const f = (x: number): Either<string, number> => (x > 1 ? left('oh dear') : right(x))
-const g = (x: number): Either<boolean, string> => (x > 1 ? left(false) : right(x.toString()))
-
-const b = right<string, number>(1).flatMap(f).flatMap(g)
-const a = flatMap(g, flatMap(f, left<number, number>(1)))
-
-const c = pipe(left<number, number>(1), flatMap_(f), flatMap_(g))
