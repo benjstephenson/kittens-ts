@@ -1,7 +1,9 @@
 import * as Ord from '../Orderable'
 import * as O from '../Option'
-import { Applicative, HKT, Kind, Traversable } from '../hkt'
+import { Applicative, Apply, HKT, Kind, Traversable } from '../hkt'
 import { Monoid } from '../Monoid'
+import { tuple } from '../functions'
+import { isNonEmptyArray } from '../NonEmptyArray'
 
 export interface ArrayF extends HKT {
   readonly type: Array<this['A']>
@@ -43,18 +45,32 @@ export const sequence =
   <R, E, A>(fa: Kind<G, R, E, A>[]): Kind<G, R, E, A[]> =>
     traverse(G)((x) => x, fa)
 
-// export const sequence = <G extends HKT>(G: Applicative<G>) => <R, E, A>(fa: Kind<G, R, E, A>[]): Kind<G, R, E, A[]> => {
-//   if (fa.length < 1)
-//     return G.of(unit())
+export function sequenceT<F extends HKT>(
+  F: Apply<F>
+): <R, E, T extends Array<Kind<F, R, E, any>>>(
+  ...t: T & { readonly 0: Kind<F, R, E, any> }
+) => Kind<F, R, E, { [K in keyof T]: [T[K]] extends [Kind<F, R, E, infer A>] ? A : never }>
+export function sequenceT<F extends HKT>(F: Apply<F>): any {
+  return <R, E, A>(...list: Array<Kind<F, R, E, A>>) => {
+    const head = list[0]
+    const tail = list.splice(1)
 
-//   return fa.reduce(
-//     (acc, val) => G.ap(
-//       val,
-//       G.map((as) => (a: A) => [...as, a], acc)
-//     )
-//     , G.of<R, E, A[]>(unit()))
+    // let acc = F.map((x) => tuple(x), head)
 
-// }
+    // for (let i = 1; i < list.length; i++) {
+    //   acc = F.ap(acc, F.map(v => (a) => tuple(...a, v), list[i])) as any
+    // }
+
+    return tail.reduce(
+      (acc, val) =>
+        F.ap(
+          acc,
+          F.map((v) => (a) => tuple(...a, v), val)
+        ) as any,
+      F.map(tuple, head)
+    )
+  }
+}
 
 export const monoid = <A>(): Monoid<Array<A>> => ({
   empty: [],

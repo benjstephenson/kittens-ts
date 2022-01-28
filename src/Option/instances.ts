@@ -1,6 +1,6 @@
 import type { Option } from './Option'
 import * as fns from './functions'
-import { Apply, Functor, HKT, Monad, Applicative, ComposeF, identityM, getApply, Foldable, Traversable } from '../hkt'
+import { Apply, Functor, HKT, Monad, Applicative, ComposeF, identityM, Foldable, Traversable } from '../hkt'
 import { Equal } from '../Equal'
 import * as Sg from '../Semigroup'
 import { Monoid } from '../Monoid'

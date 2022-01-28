@@ -1,6 +1,5 @@
 import { None, Option, Some } from './Option'
 import { isNonEmptyArray } from '../NonEmptyArray'
-import * as A from '../Array'
 import { tuple } from '../functions'
 import { Applicative, HKT, Kind, Traversable } from '../hkt'
 
