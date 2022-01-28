@@ -1,6 +1,8 @@
 import { None, Option, Some } from './Option'
 import { isNonEmptyArray } from '../NonEmptyArray'
+import * as A from '../Array'
 import { tuple } from '../functions'
+import { Applicative, HKT, Kind, Traversable } from '../hkt'
 
 export const none = <A>(): Option<A> => new None()
 
@@ -27,15 +29,31 @@ export const flatMap_: <A, B>(f: (a: A) => Option<B>) => (fa: Option<A>) => Opti
 
 export const lift: <A, B>(f: (a: A) => B) => (fa: Option<A>) => Option<B> = (f) => map_(f)
 
-export function sequence<T extends Array<Option<any>>, U>(...t: T & { readonly 0: Option<any> }): Option<Array<U>>
-export function sequence<U>(...list: Array<Option<U>>) {
-  if (!isNonEmptyArray(list)) return none()
+export const traverse =
+  <F extends HKT>(F: Applicative<F>) =>
+  <R, E, A, B>(f: (a: A) => Kind<F, R, E, B>, fa: Option<A>): Kind<F, R, E, Option<B>> =>
+    fa.isNone()
+      ? F.of(none())
+      : F.ap(
+          f(fa.get()),
+          F.of((b) => some(b))
+        )
 
-  const head = list[0]
-  const tail = list.splice(1)
+export const sequence =
+  <F extends HKT>(F: Applicative<F>) =>
+  <R, E, A>(fa: Option<Kind<F, R, E, A>>): Kind<F, R, E, Option<A>> =>
+    traverse(F)((x) => x, fa)
 
-  return tail.reduce((acc, v) => acc.flatMap((h) => v.map((b) => [...h, b])), head.map(Array.of))
-}
+// specialised to Array
+// export function sequence<T extends Array<Option<any>>, U>(...t: T & { readonly 0: Option<any> }): Option<Array<U>>
+// export function sequence<U>(...list: Array<Option<U>>) {
+//   if (!isNonEmptyArray(list)) return none()
+
+//   const head = list[0]
+//   const tail = list.splice(1)
+
+//   return tail.reduce((acc, v) => acc.flatMap((h) => v.map((b) => [...h, b])), head.map(Array.of))
+// }
 
 export function sequenceT<T extends Array<Option<any>>>(
   ...t: T & { readonly 0: Option<any> }

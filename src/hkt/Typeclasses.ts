@@ -19,11 +19,20 @@ export interface Contravariant<F extends HKT> extends Typeclass<F> {
 }
 
 export interface Applicative<F extends HKT> extends Apply<F> {
-  readonly of: <A>(a: A) => Kind<F, unknown, never, A>
+  readonly of: <R, E, A>(a: A) => Kind<F, R, E, A>
 }
 
 export interface Foldable<F extends HKT> extends Typeclass<F> {
   readonly fold: <R, E, A, B>(f: (acc: B, a: A) => B, init: B, fa: Kind<F, R, E, A>) => B
+}
+
+export interface Traversable<F extends HKT> extends Typeclass<F> {
+  readonly traverse: <G extends HKT>(
+    G: Applicative<G>
+  ) => <R, E, A, B>(f: (a: A) => Kind<G, R, E, B>, fa: Kind<F, R, E, A>) => Kind<G, R, E, Kind<F, R, E, B>>
+  readonly sequence: <G extends HKT>(
+    G: Applicative<G>
+  ) => <R, E, A>(fa: Kind<F, R, E, Kind<G, R, E, A>>) => Kind<G, R, E, Kind<F, R, E, A>>
 }
 
 export interface Monad<F extends HKT> extends Applicative<F> {

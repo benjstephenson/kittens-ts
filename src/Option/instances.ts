@@ -1,6 +1,6 @@
 import type { Option } from './Option'
 import * as fns from './functions'
-import { Apply, Functor, HKT, Monad, Applicative, ComposeF, identityM, getApply, Foldable } from '../hkt'
+import { Apply, Functor, HKT, Monad, Applicative, ComposeF, identityM, getApply, Foldable, Traversable } from '../hkt'
 import { Equal } from '../Equal'
 import * as Sg from '../Semigroup'
 import { Monoid } from '../Monoid'
@@ -40,6 +40,11 @@ export const foldable: Foldable<OptionF> = {
   fold: (f, init, fa) => (fa.isNone() ? init : f(init, fa.get())),
 }
 
+export const traversable: Traversable<OptionF> = {
+  traverse: fns.traverse,
+  sequence: fns.sequence,
+}
+
 export const monad: Monad<OptionF> = optionT(identityM)
 // export const monad: Monad<OptionF> = {
 //   ...applicative,
@@ -54,6 +59,3 @@ export function optionT<F extends HKT>(F: Monad<F>): Monad<ComposeF<F, OptionF>>
     flatMap: (f, fa) => F.flatMap((o) => (o.isNone() ? F.of(fns.none()) : f(o.get())), fa),
   }
 }
-
-const optionMonad = optionT(identityM)
-const apply2: Apply<OptionF> = getApply(optionMonad)

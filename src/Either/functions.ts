@@ -1,5 +1,7 @@
-import { pipe } from '../functions'
+import { pipe, id } from '../functions'
+import { Applicative, HKT, Kind } from '../hkt'
 import { Either, Left, Right } from './Either'
+import * as A from '../Array'
 
 export const left: <E, A>(l: E) => Either<E, A> = (l) => new Left(l)
 
@@ -59,6 +61,24 @@ export const match_: <E, E2, A, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B 
 export const of: <E, A>(a: A) => Either<E, A> = (a) => right(a)
 
 export const lift: <E, A, B>(f: (a: A) => B) => (fa: Either<E, A>) => Either<E, B> = (f) => map_(f)
+
+export const traverse =
+  <F extends HKT>(F: Applicative<F>) =>
+  <R, E, A, B>(f: (a: A) => Kind<F, R, E, B>, fa: Either<E, A>): Kind<F, R, E, Either<E, B>> =>
+    fa.isLeft()
+      ? F.of(left(fa.get()))
+      : F.ap(
+          f(fa.get()),
+          F.of((x) => right(x))
+        )
+
+export const sequence =
+  <F extends HKT>(F: Applicative<F>) =>
+  <R, E, A>(fa: Either<E, Kind<F, R, E, A>>): Kind<F, R, E, Either<E, A>> =>
+    traverse(F)((x) => x, fa)
+
+const foo = right([1])
+const bar = sequence(A.applicative)(foo)
 
 const f = (x: number): Either<string, number> => (x > 1 ? left('oh dear') : right(x))
 const g = (x: number): Either<boolean, string> => (x > 1 ? left(false) : right(x.toString()))

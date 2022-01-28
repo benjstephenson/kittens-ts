@@ -1,6 +1,6 @@
 import type { Either } from './Either'
 import * as fns from './functions'
-import { Apply, Functor, HKT, Monad, Applicative, ComposeF, EitherT, Kind, Foldable } from '../hkt'
+import { Apply, Functor, HKT, Monad, Applicative, ComposeF, EitherT, Kind, Foldable, Traversable } from '../hkt'
 import * as Eq from '../Equal'
 import { Semigroup } from '../Semigroup'
 
@@ -33,6 +33,11 @@ export const monad: Monad<EitherF> = {
 
 export const foldable: Foldable<EitherF> = {
   fold: fns.fold,
+}
+
+export const traversable: Traversable<EitherF> = {
+  traverse: fns.traverse,
+  sequence: fns.sequence,
 }
 
 export const getEquals = <E, A>(eqE: Eq.Equal<E>, eqA: Eq.Equal<A>): Eq.Equal<Either<E, A>> => ({
