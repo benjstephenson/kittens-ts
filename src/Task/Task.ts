@@ -1,10 +1,14 @@
+import { Lazy } from '../hkt'
 import * as fns from './functions'
 
+/*
+ * Represents a computation that *cannot* fail
+ */
 export class Task<A> {
-  constructor(private readonly thunk: () => Promise<A>) {}
+  constructor(private readonly thunk: Lazy<Promise<A>>) {}
 
-  static of<A>(thunk: () => Promise<A>): Task<A> {
-    return new Task(thunk)
+  static of<A>(a: A): Task<A> {
+    return fns.of(a)
   }
 
   run(): Promise<A> {
@@ -14,12 +18,12 @@ export class Task<A> {
   // from prelude-ts
   // allow this Task to be thenable so can be awaited
   then<TResult1 = A, TResult2 = never>(
-    onfulfilled: (value: A) => TResult1 | PromiseLike<TResult1>,
-    onrejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
+    onResolved: (value: A) => TResult1 | PromiseLike<TResult1>,
+    onRejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
   ): PromiseLike<TResult1 | TResult2> {
     return this.thunk().then(
-      (x) => onfulfilled(x),
-      (rejected) => (onrejected ? onrejected(rejected) : Promise.reject<TResult2>(rejected))
+      (x) => onResolved(x),
+      (rejected) => (onRejected ? onRejected(rejected) : Promise.reject<TResult2>(rejected))
     )
   }
 

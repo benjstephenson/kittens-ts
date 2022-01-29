@@ -1,6 +1,7 @@
 import * as E from '../Either'
 import * as A from '../Array'
 import * as O from '../Option'
+import * as T from '../Task'
 import { Apply, getApply, identityM } from '../hkt'
 import { pipe } from '../functions'
 
@@ -23,3 +24,7 @@ const eb = E.right<string, number>(1).flatMap(f).flatMap(g)
 const ea = E.flatMap(g, E.flatMap(f, E.left<number, number>(1)))
 
 const c = pipe(E.left<number, number>(1), E.flatMap_(f), E.flatMap_(g))
+
+const taskArray = [T.of(() => Promise.resolve(1))]
+const traversedTask = A.traverse(T.applicative)((a) => a.map((x) => x.toString()), taskArray)
+const sequencedTask = A.sequence(T.applicative)(taskArray)

@@ -3,8 +3,6 @@ import * as fc from 'fast-check'
 import * as S from '../src/Semigroup'
 
 describe('Semigroup instances', () => {
-  const inc = (n: number) => n + 1
-
   it('record semigroup', () => {
     type Cat = {
       name: string
