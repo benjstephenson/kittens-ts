@@ -1,21 +1,18 @@
 import * as O from '../Option'
 import { getEquals } from './instances'
 import * as Eq from '../Equal'
-import { ap, bimap, flatMap, map, rightWiden } from './functions'
+import * as fns from './functions'
 
 export type Either<E, A> = Left<E, A> | Right<E, A>
 
-interface EitherFuns<E, A> {
+interface EitherFns<E, A> {
   isLeft(): this is Left<E, A>
 
   isRight(): this is Right<E, A>
 
-  // get(): E
-
   getOrElse(other: A): A
 
   equals(other: Either<E, A>, eqE: Eq.Equal<E>, eqA: Eq.Equal<A>): boolean
-  //rightCast<RR>(): Left<E, RR>
 
   ap<B>(fab: Either<E, (r: A) => B>): Either<E, B>
 
@@ -27,10 +24,12 @@ interface EitherFuns<E, A> {
 
   bimap<EE, AA>(fo: { Left: (e: E) => EE; Right: (a: A) => AA }): Either<EE, AA>
 
+  fold<B>(f: (acc: B, a: A) => B, init: B): B
+
   toOption(): O.Option<A>
 }
 
-export class Left<E, A> implements EitherFuns<E, A> {
+export class Left<E, A> implements EitherFns<E, A> {
   readonly tag = 'Left'
 
   constructor(private readonly value: E) {}
@@ -55,28 +54,28 @@ export class Left<E, A> implements EitherFuns<E, A> {
     return other
   }
 
-  rightCast<RR>(): Left<E, RR> {
-    return rightWiden(this)
-  }
-
   ap<B>(fab: Either<E, (r: A) => B>): Either<E, B> {
-    return ap(this, fab)
+    return fns.ap(this, fab)
   }
 
   map<B>(f: (a: A) => B): Either<E, B> {
-    return map(f, this)
+    return fns.map(f, this)
   }
 
   mapLeft<M>(f: (l: E) => M): Either<M, A> {
-    return new Left(f(this.value))
+    return fns.mapLeft(f, this)
   }
 
   flatMap<E2, B>(f: (r: A) => Either<E2, B>): Either<E | E2, B> {
-    return flatMap(f, this)
+    return fns.flatMap(f, this)
   }
 
   bimap<EE, AA>(fo: { Left: (e: E) => EE; Right: (a: A) => AA }): Either<EE, AA> {
-    return bimap(fo, this)
+    return fns.bimap(fo, this)
+  }
+
+  fold<B>(f: (acc: B, a: A) => B, init: B): B {
+    return fns.fold(f, init, this)
   }
 
   toOption(): O.Option<A> {
@@ -84,7 +83,7 @@ export class Left<E, A> implements EitherFuns<E, A> {
   }
 }
 
-export class Right<E, A> implements EitherFuns<E, A> {
+export class Right<E, A> implements EitherFns<E, A> {
   readonly tag = 'Right'
 
   constructor(private readonly value: A) {}
@@ -110,11 +109,11 @@ export class Right<E, A> implements EitherFuns<E, A> {
   }
 
   ap<E2, B>(fab: Either<E2, (r: A) => B>): Either<E | E2, B> {
-    return ap<E, E2, A, B>(this, fab)
+    return fns.ap<E, E2, A, B>(this, fab)
   }
 
   map<B>(f: (a: A) => B) {
-    return map<E, A, B>(f, this)
+    return fns.map<E, A, B>(f, this)
   }
 
   mapLeft<E2>(_f: (l: E) => E2): Either<E2, A> {
@@ -122,11 +121,15 @@ export class Right<E, A> implements EitherFuns<E, A> {
   }
 
   flatMap<E2, B>(f: (r: A) => Either<E2, B>): Either<E | E2, B> {
-    return flatMap<E, E2, A, B>(f, this)
+    return fns.flatMap<E, E2, A, B>(f, this)
   }
 
   bimap<E2, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }): Either<E2, B> {
-    return bimap(fo, this)
+    return fns.bimap(fo, this)
+  }
+
+  fold<B>(f: (acc: B, a: A) => B, init: B): B {
+    return fns.fold(f, init, this)
   }
 
   toOption(): O.Option<A> {

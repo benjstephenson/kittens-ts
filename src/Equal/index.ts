@@ -20,6 +20,8 @@ export const from = <A>(equals: (x: A, y: A) => boolean): Equal<A> => ({
 
 export const withDefault = <A>() => from((x: A, y: A) => x === y)
 
+export const never = <A>() => from((x: A, y: A) => false)
+
 export function record<R extends Record<string, any>>(equalities: {
   [K in keyof R]: Equal<R[K]>
 }): Equal<R> {

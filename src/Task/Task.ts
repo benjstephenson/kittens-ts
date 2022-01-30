@@ -15,6 +15,10 @@ export class Task<A> {
     return this.thunk()
   }
 
+  get(): Lazy<Promise<A>> {
+    return this.thunk
+  }
+
   // from prelude-ts
   // allow this Task to be thenable so can be awaited
   then<TResult1 = A, TResult2 = never>(
