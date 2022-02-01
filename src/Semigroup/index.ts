@@ -1,4 +1,4 @@
-import { Apply, Foldable, HKT, Kind } from '../hkt'
+import { Apply, Contravariant, Foldable, HKT, Kind } from '../hkt'
 
 export interface Semigroup<A> {
   readonly concat: (a: A, b: A) => A
@@ -36,11 +36,11 @@ export const string: Semigroup<string> = {
   concat: (a, b) => `${a} ${b}`,
 }
 
-export const both: Semigroup<number> = {
+export const both: Semigroup<boolean> = {
   concat: (a, b) => a && b,
 }
 
-export const either: Semigroup<number> = {
+export const either: Semigroup<boolean> = {
   concat: (a, b) => a || b,
 }
 
