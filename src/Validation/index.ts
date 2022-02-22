@@ -1,4 +1,5 @@
 import * as A from '../Array'
+import * as R from '../Record'
 import * as Sg from '../Semigroup'
 import { Apply, Monad, Failable, Eitherable, HKT, Kind } from '../hkt'
 import * as E from '../Either'
@@ -37,3 +38,5 @@ export const getMonadValidation =
 export const getEitherValidation = <A>() => getMonadValidation(E.monad, E.failable, E.eitherable)(Sg.nel<A>())
 
 export const getValidationNel = <A>() => A.sequenceT(getEitherValidation<A>())
+
+export const getRecordValidation = <A>() => R.sequence(getEitherValidation<A>())
