@@ -1,8 +1,21 @@
 import type { Either } from './Either'
 import * as fns from './functions'
-import { Apply, Functor, HKT, Monad, Applicative, ComposeF, EitherT, Kind, Foldable, Traversable } from '../hkt'
+import {
+  Apply,
+  Functor,
+  HKT,
+  Monad,
+  Applicative,
+  ComposeF,
+  EitherT,
+  Kind,
+  Foldable,
+  Traversable,
+  Failable,
+  Eitherable,
+} from '../hkt'
 import * as Eq from '../Equal'
-import { Semigroup } from '../Semigroup'
+import { Semigroup, array } from '../Semigroup'
 
 export interface EitherF extends HKT {
   readonly type: Either<this['E'], this['A']>
@@ -40,6 +53,14 @@ export const traversable: Traversable<EitherF> = {
   sequence: fns.sequence,
 }
 
+export const failable: Failable<EitherF> = {
+  fail: fns.left,
+}
+
+export const eitherable: Eitherable<EitherF> = {
+  toEither: fns.right,
+}
+
 export const getEquals = <E, A>(eqE: Eq.Equal<E>, eqA: Eq.Equal<A>): Eq.Equal<Either<E, A>> => ({
   equals: (x, y) =>
     x.isLeft() && y.isLeft()
@@ -59,16 +80,6 @@ export function eitherT<F extends HKT>(F: Monad<F>): Monad<EitherT<F>> {
       f: (a: A) => Kind<F, R2, never, Either<E2, B>>,
       faa: Kind<F, R, never, Either<E, A>>
     ): Kind<F, R & R2, never, Either<E | E2, B>> =>
-      F.flatMap(
-        (aa) =>
-          fns.match(
-            {
-              Left: (l) => F.of(fns.left<E | E2, B>(l)),
-              Right: (r) => f(r),
-            },
-            aa
-          ),
-        faa
-      ),
+      F.flatMap((aa) => (aa.isLeft() ? F.of(fns.leftWiden(fns.left(aa.get()))) : f(aa.get())), faa),
   }
 }

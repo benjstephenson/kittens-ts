@@ -85,3 +85,11 @@ export const getApply = <F extends HKT>(F: Monad<F>): Apply<F> => ({
   map: F.map,
   ap: F.ap,
 })
+
+export interface Eitherable<F extends HKT> extends Typeclass<F> {
+  readonly toEither: <R, E, A>(fa: Kind<F, R, E, A>) => Kind<F, R, never, Either<E, A>>
+}
+
+export interface Failable<F extends HKT> extends Typeclass<F> {
+  readonly fail: <E>(e: E) => Kind<F, unknown, E, never>
+}

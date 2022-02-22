@@ -1,4 +1,5 @@
 import { Apply, Contravariant, Foldable, HKT, Kind } from '../hkt'
+import * as NEA from '../NonEmptyArray'
 
 export interface Semigroup<A> {
   readonly concat: (a: A, b: A) => A
@@ -46,6 +47,10 @@ export const either: Semigroup<boolean> = {
 
 export const array = <A>(): Semigroup<A[]> => ({
   concat: (a, b) => [...a, ...b],
+})
+
+export const nel = <A>(): Semigroup<NEA.NonEmptyArray<A>> => ({
+  concat: NEA.concat,
 })
 
 export const fold =

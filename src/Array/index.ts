@@ -1,5 +1,6 @@
 import * as Ord from '../Orderable'
 import * as O from '../Option'
+import * as Sg from '../Semigroup'
 import { Applicative, Apply, HKT, Kind, Traversable } from '../hkt'
 import { Monoid } from '../Monoid'
 import { tuple } from '../functions'
@@ -50,7 +51,7 @@ export function sequenceT<F extends HKT>(
 ): <R, E, T extends Array<Kind<F, R, E, any>>>(
   ...t: T & { readonly 0: Kind<F, R, E, any> }
 ) => Kind<F, R, E, { [K in keyof T]: [T[K]] extends [Kind<F, R, E, infer A>] ? A : never }>
-export function sequenceT<F extends HKT>(F: Apply<F>): any {
+export function sequenceT<F extends HKT>(F: Apply<F>) {
   return <R, E, A>(...list: Array<Kind<F, R, E, A>>) => {
     const curriedTupleCtr = curry(tuple)
 

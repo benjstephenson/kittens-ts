@@ -19,6 +19,14 @@ export class TaskEither<E, A> {
     return monad.of(a)
   }
 
+  static fromEither<E, A>(e: E.Either<E, A>): TaskEither<E, A> {
+    return new TaskEither(T.of(e))
+  }
+
+  static fromTask<E, A>(t: T.Task<A>): TaskEither<E, A> {
+    return new TaskEither(t.map((a) => E.right<E, A>(a)))
+  }
+
   run(): Promise<E.Either<E, A>> {
     return this.task.run()
   }
@@ -27,7 +35,11 @@ export class TaskEither<E, A> {
     return monad.map(f, this)
   }
 
-  flatMap<B>(f: (a: A) => TaskEither<E, B>): TaskEither<E, B> {
+  mapEither<E2, B>(f: (a: A) => E.Either<E2, B>): TaskEither<E | E2, B> {
+    return monad.flatMap((a) => TaskEither.fromEither(f(a)), this)
+  }
+
+  flatMap<E2, B>(f: (a: A) => TaskEither<E2, B>): TaskEither<E | E2, B> {
     return monad.flatMap(f, this)
   }
 }

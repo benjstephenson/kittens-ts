@@ -56,7 +56,7 @@ export const bimap_ =
 export const fold = <E, A, B>(f: (acc: B, a: A) => B, init: B, fa: Either<E, A>): B =>
   fa.isLeft() ? init : f(init, fa.get())
 
-export const match = <E, A, B>(fo: { Left: (e: E) => B; Right: (a: A) => B }, fa: Either<E, A>): B =>
+export const match = <R, E, A, B>(fo: { Left: (e: E) => B; Right: (a: A) => B }, fa: Either<E, A>): B =>
   fa.isLeft() ? fo.Left(fa.get()) : fo.Right(fa.get())
 
 export const match_ =
