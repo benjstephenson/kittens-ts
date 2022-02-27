@@ -12,6 +12,8 @@ interface EitherFns<E, A> {
 
   getOrElse(other: A): A
 
+  getOrThrow(error: Error): A
+
   equals(other: Either<E, A>, eqE: Eq.Equal<E>, eqA: Eq.Equal<A>): boolean
 
   ap<B>(fab: Either<E, (r: A) => B>): Either<E, B>
@@ -52,6 +54,10 @@ export class Left<E, A> implements EitherFns<E, A> {
 
   getOrElse(other: A): A {
     return other
+  }
+
+  getOrThrow(error: Error): A {
+    throw error
   }
 
   ap<B>(fab: Either<E, (r: A) => B>): Either<E, B> {
@@ -105,6 +111,10 @@ export class Right<E, A> implements EitherFns<E, A> {
   }
 
   getOrElse(_other: A): A {
+    return this.value
+  }
+
+  getOrThrow(error: Error): A {
     return this.value
   }
 

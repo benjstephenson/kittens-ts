@@ -7,7 +7,7 @@ import { Semigroup } from '../../src/Semigroup'
 describe('Option instances', () => {
   const inc = (n: number) => n + 1
   const intSemigroup: Semigroup<number> = {
-    concat: (a, b) => a + b,
+    concat: (a, b) => a + b
   }
 
   const optionSemigroup = O.getSemigroup(intSemigroup)
@@ -16,9 +16,7 @@ describe('Option instances', () => {
     it('associativity', () => {
       fc.assert(
         fc.property(fc.integer(), fc.integer(), (a, b) => {
-          assertThat(optionSemigroup.concat(O.applicative.of(a), O.applicative.of(b))).is(
-            optionSemigroup.concat(O.applicative.of(b), O.applicative.of(a))
-          )
+          assertThat(optionSemigroup.concat(O.applicative.of(a), O.applicative.of(b))).is(optionSemigroup.concat(O.applicative.of(b), O.applicative.of(a)))
         })
       )
     })
@@ -27,7 +25,7 @@ describe('Option instances', () => {
   describe('monoid laws', () => {
     it('left identity', () => {
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           const some = O.some(value)
           assertThat(optionSemigroup.concat(O.none(), some)).is(some)
         })
@@ -36,7 +34,7 @@ describe('Option instances', () => {
 
     it('right identity', () => {
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           const some = O.some(value)
           assertThat(optionSemigroup.concat(some, O.none())).is(some)
         })
@@ -61,7 +59,7 @@ describe('Option instances', () => {
   describe('functor laws', () => {
     it('identity', () => {
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           const some = O.some(value)
           assertThat(O.functor.map(id, some)).is(some)
         })
@@ -70,10 +68,10 @@ describe('Option instances', () => {
 
     it('composition', () => {
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           const some = O.some(value)
 
-          assertThat(O.functor.map(inc, O.functor.map(inc, some))).is(O.functor.map((x) => inc(inc(x)), some))
+          assertThat(O.functor.map(inc, O.functor.map(inc, some))).is(O.functor.map(x => inc(inc(x)), some))
         })
       )
     })
@@ -82,13 +80,13 @@ describe('Option instances', () => {
   describe('pure laws', () => {
     it('identity', () => {
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           const some = O.some(value)
 
           assertThat(
             O.applicative.ap(
               some,
-              O.applicative.of((x) => x)
+              O.applicative.of(x => x)
             )
           ).is(some)
         })
@@ -99,7 +97,7 @@ describe('Option instances', () => {
       // we can lift the func and the argument and then combine them
       // or we can combine them and then lift the result
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           assertThat(O.applicative.ap(O.applicative.of(value), O.applicative.of(inc))).is(O.applicative.of(inc(value)))
         })
       )
@@ -110,13 +108,13 @@ describe('Option instances', () => {
       // or we can lift f => f(value) and apply the function in fab to that
       // i.e ap just applies the rhs to lhs; no special handling of either
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           const fab = O.applicative.of(inc)
 
           assertThat(O.applicative.ap(O.applicative.of(value), fab)).is(
             O.applicative.ap(
               fab,
-              O.applicative.of((f) => f(value))
+              O.applicative.of(f => f(value))
             )
           )
         })
@@ -129,7 +127,7 @@ describe('Option instances', () => {
 
     it('left identity', () => {
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           const pure = O.monad.of(value)
 
           assertThat(O.monad.flatMap(f, pure)).is(f(value))
@@ -139,7 +137,7 @@ describe('Option instances', () => {
 
     it('right identity', () => {
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           const pure = O.monad.of(value)
 
           assertThat(O.monad.flatMap(O.monad.of, pure)).is(pure)
@@ -153,9 +151,21 @@ describe('Option instances', () => {
           // m.chain(f).chain(g) === m.chain(x => f(x).chain(g))
           const pure = O.monad.of(a)
 
-          assertThat(O.monad.flatMap(f, O.monad.flatMap(f, pure))).is(
-            O.monad.flatMap((x) => O.monad.flatMap(f, f(x)), pure)
-          )
+          assertThat(O.monad.flatMap(f, O.monad.flatMap(f, pure))).is(O.monad.flatMap(x => O.monad.flatMap(f, f(x)), pure))
+        })
+      )
+    })
+  })
+
+  describe('alt laws', () => {
+    it('associativity', () => {
+      fc.assert(
+        fc.property(fc.integer(), fc.integer(), fc.integer(), (a, b, c) => {
+          const optionA = O.of(a)
+          const optionB = O.of(b)
+          const optionC = O.of(c)
+
+          assertThat(O.alt.alt(optionC, O.alt.alt(optionB, optionA))).is(O.alt.alt(O.alt.alt(optionC, optionB), optionA))
         })
       )
     })

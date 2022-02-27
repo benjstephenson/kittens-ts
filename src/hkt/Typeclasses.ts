@@ -8,16 +8,17 @@ export interface Functor<F extends HKT> extends Typeclass<F> {
 }
 
 export interface Apply<F extends HKT> extends Functor<F> {
-  readonly ap: <R, R2, E, E2, A, B>(
-    fa: Kind<F, R, E, A>,
-    fab: Kind<F, R2, E2, (a: A) => B>
-  ) => Kind<F, R & R2, E | E2, B>
+  readonly ap: <R, R2, E, E2, A, B>(fa: Kind<F, R, E, A>, fab: Kind<F, R2, E2, (a: A) => B>) => Kind<F, R & R2, E | E2, B>
 }
 
 export const unsafeWidenFA = <F extends HKT, R, E, A, A2>(self: Kind<F, R, E, A>): Kind<F, R, E, A2> => self as any
 
 export interface Contravariant<F extends HKT> extends Typeclass<F> {
   readonly contramap: <R, E, A, B>(f: (b: B) => A, fa: Kind<F, R, E, A>) => Kind<F, R, E, B>
+}
+
+export interface Alt<F extends HKT> extends Typeclass<F> {
+  readonly alt: <R, E, A>(alt: Kind<F, R, E, A>, fa: Kind<F, R, E, A>) => Kind<F, R, E, A>
 }
 
 export interface Applicative<F extends HKT> extends Apply<F> {
@@ -28,18 +29,15 @@ export interface Compose<F extends HKT, G extends HKT> extends HKT {
   readonly type: Kind<F, this['R'], this['E'], Kind<G, this['R'], this['E'], this['A']>>
 }
 
-export const getCompose = <F extends HKT, G extends HKT>(
-  F: Applicative<F>,
-  G: Applicative<G>
-): Applicative<Compose<F, G>> => ({
-  of: (a) => F.of(G.of(a)),
+export const getCompose = <F extends HKT, G extends HKT>(F: Applicative<F>, G: Applicative<G>): Applicative<Compose<F, G>> => ({
+  of: a => F.of(G.of(a)),
   ap: <R, R2, E, E2, A, B>(fga: Kind<F, R, E, Kind<G, R, E, A>>, fgab: Kind<F, R2, E2, Kind<G, R2, E2, (a: A) => B>>) =>
     F.ap(
       fgab,
-      F.map((ga) => (f) => G.ap(ga, f), fga)
+      F.map(ga => f => G.ap(ga, f), fga)
     ),
 
-  map: (fg, fga) => F.map((ga) => G.map(fg, ga), fga),
+  map: (fg, fga) => F.map(ga => G.map(fg, ga), fga)
 })
 
 export interface Foldable<F extends HKT> extends Typeclass<F> {
@@ -47,19 +45,12 @@ export interface Foldable<F extends HKT> extends Typeclass<F> {
 }
 
 export interface Traversable<F extends HKT> extends Typeclass<F> {
-  readonly traverse: <G extends HKT>(
-    G: Applicative<G>
-  ) => <R, E, A, B>(f: (a: A) => Kind<G, R, E, B>, fa: Kind<F, R, E, A>) => Kind<G, R, E, Kind<F, R, E, B>>
-  readonly sequence: <G extends HKT>(
-    G: Applicative<G>
-  ) => <R, E, A>(fa: Kind<F, R, E, Kind<G, R, E, A>>) => Kind<G, R, E, Kind<F, R, E, A>>
+  readonly traverse: <G extends HKT>(G: Applicative<G>) => <R, E, A, B>(f: (a: A) => Kind<G, R, E, B>, fa: Kind<F, R, E, A>) => Kind<G, R, E, Kind<F, R, E, B>>
+  readonly sequence: <G extends HKT>(G: Applicative<G>) => <R, E, A>(fa: Kind<F, R, E, Kind<G, R, E, A>>) => Kind<G, R, E, Kind<F, R, E, A>>
 }
 
 export interface Monad<F extends HKT> extends Applicative<F> {
-  readonly flatMap: <R, R2, E, E2, A, B>(
-    f: (a: A) => Kind<F, R2, E2, B>,
-    fa: Kind<F, R, E, A>
-  ) => Kind<F, R & R2, E | E2, B>
+  readonly flatMap: <R, R2, E, E2, A, B>(f: (a: A) => Kind<F, R2, E2, B>, fa: Kind<F, R, E, A>) => Kind<F, R & R2, E | E2, B>
 }
 
 export interface Id<A> {
@@ -72,9 +63,9 @@ export interface IdF extends HKT {
 
 export const identityM: Monad<IdF> = {
   ap: (fa, fab) => fab(fa),
-  of: (a) => a,
+  of: a => a,
   map: (f, a) => f(a),
-  flatMap: (f, a) => f(a),
+  flatMap: (f, a) => f(a)
 }
 
 export interface EitherT<F extends HKT> extends HKT, Typeclass<F> {
@@ -83,7 +74,7 @@ export interface EitherT<F extends HKT> extends HKT, Typeclass<F> {
 
 export const getApply = <F extends HKT>(F: Monad<F>): Apply<F> => ({
   map: F.map,
-  ap: F.ap,
+  ap: F.ap
 })
 
 export interface Eitherable<F extends HKT> extends Typeclass<F> {

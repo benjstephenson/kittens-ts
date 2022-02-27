@@ -46,7 +46,7 @@ export const traverse =
       return F.ap(
         f(ra[k]),
         F.map(
-          (rec) => (b: B) => {
+          rec => (b: B) => {
             rec[k] = b
             return rec
           },
@@ -56,15 +56,9 @@ export const traverse =
     }, initial)
   }
 
-// export function sequenceR<R extends Record<string, E.Either<string, any>>>(
-//   record: R
-// ): E.Either<string[], { [K in keyof R]: R[K] extends E.Either<string[], infer A> ? A : never }>
-
 export function sequence<F extends HKT>(
   F: Applicative<F>
-): <R, E, Rec extends Record<string, Kind<F, R, E, any>>>(
-  fa: Rec
-) => Kind<F, R, E, { [K in keyof Rec]: Rec[K] extends Kind<F, R, E, infer A> ? A : never }>
+): <R, E, Rec extends Record<string, Kind<F, R, E, any>>>(fa: Rec) => Kind<F, R, E, { [K in keyof Rec]: Rec[K] extends Kind<F, R, E, infer A> ? A : never }>
 export function sequence<F extends HKT>(F: Applicative<F>) {
-  return <R, E>(fa: Record<string, Kind<F, R, E, any>>): Kind<F, R, E, Record<string, any>> => traverse(F)((x) => x, fa)
+  return <R, E>(fa: Record<string, Kind<F, R, E, any>>): Kind<F, R, E, Record<string, any>> => traverse(F)(x => x, fa)
 }

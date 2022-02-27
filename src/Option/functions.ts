@@ -11,22 +11,25 @@ const isSome = <A>(opt: Option<A>): opt is Some<A> => opt.tag === 'Some'
 
 const isNone = <A>(opt: Option<A>): opt is None<A> => !isSome(opt)
 
-export const of: <A>(a: A | undefined) => Option<A> = (a) => (a === undefined ? none() : some(a))
+export const of: <A>(a: A | undefined) => Option<A> = a => (a === undefined ? none() : some(a))
 
-export const map: <A, B>(f: (a: A) => B, fa: Option<A>) => Option<B> = (f, fa) =>
-  fa.isSome() ? some(f(fa.get())) : none()
+export const map: <A, B>(f: (a: A) => B, fa: Option<A>) => Option<B> = (f, fa) => (fa.isSome() ? some(f(fa.get())) : none())
 
-export const map_: <A, B>(f: (a: A) => B) => (fa: Option<A>) => Option<B> = (f) => (fa) => map(f, fa)
+export const map_: <A, B>(f: (a: A) => B) => (fa: Option<A>) => Option<B> = f => fa => map(f, fa)
 
-export const ap: <A, B>(fa: Option<A>, fab: Option<(a: A) => B>) => Option<B> = (fa, fab) =>
-  flatMap((f) => map(f, fa), fab)
+export const ap: <A, B>(fa: Option<A>, fab: Option<(a: A) => B>) => Option<B> = (fa, fab) => flatMap(f => map(f, fa), fab)
 
-export const flatMap: <A, B>(f: (a: A) => Option<B>, fa: Option<A>) => Option<B> = (f, fa) =>
-  isSome(fa) ? f(fa.get()) : none()
+export const flatMap: <A, B>(f: (a: A) => Option<B>, fa: Option<A>) => Option<B> = (f, fa) => (isSome(fa) ? f(fa.get()) : none())
 
-export const flatMap_: <A, B>(f: (a: A) => Option<B>) => (fa: Option<A>) => Option<B> = (f) => (fa) => flatMap(f, fa)
+export const flatMap_: <A, B>(f: (a: A) => Option<B>) => (fa: Option<A>) => Option<B> = f => fa => flatMap(f, fa)
 
-export const lift: <A, B>(f: (a: A) => B) => (fa: Option<A>) => Option<B> = (f) => map_(f)
+export const lift: <A, B>(f: (a: A) => B) => (fa: Option<A>) => Option<B> = f => map_(f)
+
+export const alt = <A>(a: Option<A>, fa: Option<A>): Option<A> => (isSome(fa) ? fa : a)
+export const alt_ =
+  <A>(a: Option<A>) =>
+  (fa: Option<A>): Option<A> =>
+    alt(a, fa)
 
 export const traverse =
   <F extends HKT>(F: Applicative<F>) =>
@@ -35,13 +38,13 @@ export const traverse =
       ? F.of(none())
       : F.ap(
           f(fa.get()),
-          F.of((b) => some(b))
+          F.of(b => some(b))
         )
 
 export const sequence =
   <F extends HKT>(F: Applicative<F>) =>
   <R, E, A>(fa: Option<Kind<F, R, E, A>>): Kind<F, R, E, Option<A>> =>
-    traverse(F)((x) => x, fa)
+    traverse(F)(x => x, fa)
 
 // specialised to Array
 // export function sequence<T extends Array<Option<any>>, U>(...t: T & { readonly 0: Option<any> }): Option<Array<U>>
@@ -54,9 +57,7 @@ export const sequence =
 //   return tail.reduce((acc, v) => acc.flatMap((h) => v.map((b) => [...h, b])), head.map(Array.of))
 // }
 
-export function sequenceT<T extends Array<Option<any>>>(
-  ...t: T & { readonly 0: Option<any> }
-): Option<{ [K in keyof T]: [T[K]] extends [Option<infer U>] ? U : never }>
+export function sequenceT<T extends Array<Option<any>>>(...t: T & { readonly 0: Option<any> }): Option<{ [K in keyof T]: [T[K]] extends [Option<infer U>] ? U : never }>
 export function sequenceT<U>(...list: Array<Option<U>>) {
   // TODO figure out how to unapply this list so we can reuse sequence.
   if (!isNonEmptyArray(list)) return none()
@@ -64,5 +65,5 @@ export function sequenceT<U>(...list: Array<Option<U>>) {
   const head = list[0]
   const tail = list.splice(1)
 
-  return tail.reduce<any>((acc, v) => acc.flatMap((h: any) => v.map((b) => tuple(...h, b))), head.map(tuple))
+  return tail.reduce<any>((acc, v) => acc.flatMap((h: any) => v.map(b => tuple(...h, b))), head.map(tuple))
 }

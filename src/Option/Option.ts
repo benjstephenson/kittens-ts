@@ -1,13 +1,11 @@
 import * as Eq from '../Equal'
 import * as E from '../Either'
-import { flatMap, map } from './functions'
+import * as fns from './functions'
 import { getEquals } from './instances'
 
 export type Option<A> = Some<A> | None<A>
-export const OptionURI = 'Option'
-export type OptionURI = typeof OptionURI
 
-interface OptionFns<A> {
+interface IOption<A> {
   isSome(): this is Some<A>
 
   isNone(): this is None<A>
@@ -22,10 +20,12 @@ interface OptionFns<A> {
 
   getOrCall(f: () => A): A
 
+  orElse(other: Option<A>): Option<A>
+
   toEither<E>(e: E): E.Either<E, A>
 }
 
-export class Some<A> implements OptionFns<A> {
+export class Some<A> implements IOption<A> {
   readonly tag = 'Some'
 
   constructor(private readonly value: A) {}
@@ -49,11 +49,11 @@ export class Some<A> implements OptionFns<A> {
   }
 
   map<B>(f: (a: A) => B): Option<B> {
-    return map(f, this)
+    return fns.map(f, this)
   }
 
   flatMap<B>(f: (a: A) => Option<B>): Option<B> {
-    return flatMap(f, this)
+    return fns.flatMap(f, this)
   }
 
   getOrElse(_default: A): A {
@@ -64,12 +64,16 @@ export class Some<A> implements OptionFns<A> {
     return this.value
   }
 
+  orElse(other: Option<A>): Option<A> {
+    return fns.alt(other, this)
+  }
+
   toEither<E>(e: E): E.Either<E, A> {
     return E.right(this.value)
   }
 }
 
-export class None<A> implements OptionFns<A> {
+export class None<A> implements IOption<A> {
   readonly tag = 'None'
 
   isSome(): this is Some<A> {
@@ -85,11 +89,11 @@ export class None<A> implements OptionFns<A> {
   }
 
   map<B>(f: (a: A) => B): Option<B> {
-    return map(f, this)
+    return fns.map(f, this)
   }
 
   flatMap<B>(f: (a: A) => Option<B>): Option<B> {
-    return flatMap(f, this)
+    return fns.flatMap(f, this)
   }
 
   getOrElse(fallback: A): A {
@@ -98,6 +102,10 @@ export class None<A> implements OptionFns<A> {
 
   getOrCall(f: () => A): A {
     return f()
+  }
+
+  orElse(other: Option<A>): Option<A> {
+    return fns.alt(other, this)
   }
 
   toEither<E>(e: E): E.Either<E, A> {
