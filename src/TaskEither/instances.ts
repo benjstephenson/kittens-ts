@@ -1,6 +1,7 @@
 import * as E from '../Either'
 import * as T from '../Task'
-import { HKT, Monad } from '../hkt'
+import { HKT } from '@benjstephenson/kittens-ts-core/dist/src/HKT'
+import { Monad } from '@benjstephenson/kittens-ts-core/dist/src/Monad'
 import { TaskEither } from './TaskEither'
 
 export interface TaskEitherF extends HKT {
@@ -10,8 +11,8 @@ export interface TaskEitherF extends HKT {
 const teMonad = E.eitherT(T.monad)
 
 export const monad: Monad<TaskEitherF> = {
-  flatMap: (f, fa) => new TaskEither(teMonad.flatMap((x) => f(x).get(), fa.get())),
-  of: (a) => new TaskEither(T.of(E.right(a))),
+  flatMap: (f, fa) => new TaskEither(teMonad.flatMap(x => f(x).get(), fa.get())),
+  of: a => new TaskEither(T.of(E.right(a))),
   ap: (fa, fab) => new TaskEither(teMonad.ap(fa.get(), fab.get())),
-  map: (f, fa) => new TaskEither(teMonad.map(f, fa.get())),
+  map: (f, fa) => new TaskEither(teMonad.map(f, fa.get()))
 }

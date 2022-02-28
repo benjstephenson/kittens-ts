@@ -1,6 +1,8 @@
 import { Task } from './Task'
 import * as fns from './functions'
-import { Applicative, HKT, Monad } from '../hkt'
+import { HKT } from '@benjstephenson/kittens-ts-core/dist/src/HKT'
+import { Applicative } from '@benjstephenson/kittens-ts-core/dist/src/Applicative'
+import { Monad } from '@benjstephenson/kittens-ts-core/dist/src/Monad'
 
 export interface TaskF extends HKT {
   readonly type: Task<this['A']>
@@ -8,11 +10,11 @@ export interface TaskF extends HKT {
 
 export const applicative: Applicative<TaskF> = {
   of: fns.of,
-  ap: fns.ap,
-  map: fns.map,
+  ap: fns._ap,
+  map: fns._map
 }
 
 export const monad: Monad<TaskF> = {
   ...applicative,
-  flatMap: fns.flatMap,
+  flatMap: fns._flatMap
 }

@@ -1,6 +1,6 @@
 import { assertThat } from 'mismatched'
 import * as fc from 'fast-check'
-import * as S from '../src/Semigroup'
+import * as S from '@benjstephenson/kittens-ts-core/dist/src/Semigroup'
 
 describe('Semigroup instances', () => {
   it('record semigroup', () => {
@@ -11,14 +11,14 @@ describe('Semigroup instances', () => {
 
     const catConcat = S.record<Cat>({
       name: S.string,
-      age: S.sum,
+      age: S.sum
     })
 
     fc.assert(
       fc.property(fc.string(), fc.integer(), (name, age) => {
         const cat: Cat = {
           name,
-          age,
+          age
         }
 
         assertThat(catConcat.concat(cat, cat)).is({ name: `${name} ${name}`, age: age + age })

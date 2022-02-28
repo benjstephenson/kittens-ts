@@ -1,8 +1,8 @@
 import { assertThat } from 'mismatched'
 import * as O from '../../src/Option'
 import * as fc from 'fast-check'
-import { id } from '../../src/functions'
-import { Semigroup } from '../../src/Semigroup'
+import { id } from '@benjstephenson/kittens-ts-core/dist/src/functions'
+import { Semigroup } from '@benjstephenson/kittens-ts-core/dist/src/Semigroup'
 
 describe('Option instances', () => {
   const inc = (n: number) => n + 1

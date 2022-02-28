@@ -1,7 +1,8 @@
 import { None, Option, Some } from './Option'
 import { isNonEmptyArray } from '../NonEmptyArray'
-import { tuple } from '../functions'
-import { Applicative, HKT, Kind, Traversable } from '../hkt'
+import { Applicative } from '@benjstephenson/kittens-ts-core/dist/src/Applicative'
+import { HKT, Kind } from '@benjstephenson/kittens-ts-core/dist/src/HKT'
+import { pipe, tuple } from '@benjstephenson/kittens-ts-core/dist/src/functions'
 
 export const none = <A>(): Option<A> => new None()
 
@@ -13,27 +14,46 @@ const isNone = <A>(opt: Option<A>): opt is None<A> => !isSome(opt)
 
 export const of: <A>(a: A | undefined) => Option<A> = a => (a === undefined ? none() : some(a))
 
-export const map: <A, B>(f: (a: A) => B, fa: Option<A>) => Option<B> = (f, fa) => (fa.isSome() ? some(f(fa.get())) : none())
+export const map =
+  <A, B>(f: (a: A) => B) =>
+  (fa: Option<A>): Option<B> =>
+    fa.isSome() ? some(f(fa.get())) : none()
 
-export const map_: <A, B>(f: (a: A) => B) => (fa: Option<A>) => Option<B> = f => fa => map(f, fa)
+export const _map = <A, B>(f: (a: A) => B, fa: Option<A>): Option<B> => map(f)(fa)
 
-export const ap: <A, B>(fa: Option<A>, fab: Option<(a: A) => B>) => Option<B> = (fa, fab) => flatMap(f => map(f, fa), fab)
+export const ap =
+  <A, B>(fa: Option<A>) =>
+  (fab: Option<(a: A) => B>): Option<B> =>
+    pipe(
+      fab,
+      flatMap(f => pipe(fa, map(f)))
+    )
 
-export const flatMap: <A, B>(f: (a: A) => Option<B>, fa: Option<A>) => Option<B> = (f, fa) => (isSome(fa) ? f(fa.get()) : none())
+export const _ap = <A, B>(fa: Option<A>, fab: Option<(a: A) => B>): Option<B> => pipe(fab, ap(fa))
 
-export const flatMap_: <A, B>(f: (a: A) => Option<B>) => (fa: Option<A>) => Option<B> = f => fa => flatMap(f, fa)
+export const flatMap =
+  <A, B>(f: (a: A) => Option<B>) =>
+  (fa: Option<A>): Option<B> =>
+    isSome(fa) ? f(fa.get()) : none()
 
-export const lift: <A, B>(f: (a: A) => B) => (fa: Option<A>) => Option<B> = f => map_(f)
+export const _flatMap = <A, B>(f: (a: A) => Option<B>, fa: Option<A>): Option<B> => pipe(fa, flatMap(f))
 
-export const alt = <A>(a: Option<A>, fa: Option<A>): Option<A> => (isSome(fa) ? fa : a)
-export const alt_ =
+export const lift =
+  <A, B>(f: (a: A) => B) =>
+  (fa: Option<A>): Option<B> =>
+    pipe(fa, map(f))
+
+export const alt =
   <A>(a: Option<A>) =>
   (fa: Option<A>): Option<A> =>
-    alt(a, fa)
+    isSome(fa) ? fa : a
+
+export const _alt = <A>(a: Option<A>, fa: Option<A>): Option<A> => pipe(fa, alt(a))
 
 export const traverse =
   <F extends HKT>(F: Applicative<F>) =>
-  <R, E, A, B>(f: (a: A) => Kind<F, R, E, B>, fa: Option<A>): Kind<F, R, E, Option<B>> =>
+  <R, E, A, B>(f: (a: A) => Kind<F, R, E, B>) =>
+  (fa: Option<A>): Kind<F, R, E, Option<B>> =>
     fa.isNone()
       ? F.of(none())
       : F.ap(
@@ -41,10 +61,18 @@ export const traverse =
           F.of(b => some(b))
         )
 
+export const _traverse =
+  <F extends HKT>(F: Applicative<F>) =>
+  <R, E, A, B>(f: (a: A) => Kind<F, R, E, B>, fa: Option<A>): Kind<F, R, E, Option<B>> =>
+    pipe(fa, traverse(F)(f))
+
 export const sequence =
   <F extends HKT>(F: Applicative<F>) =>
   <R, E, A>(fa: Option<Kind<F, R, E, A>>): Kind<F, R, E, Option<A>> =>
-    traverse(F)(x => x, fa)
+    pipe(
+      fa,
+      traverse(F)(x => x)
+    )
 
 // specialised to Array
 // export function sequence<T extends Array<Option<any>>, U>(...t: T & { readonly 0: Option<any> }): Option<Array<U>>

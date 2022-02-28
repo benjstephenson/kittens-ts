@@ -1,7 +1,11 @@
 import * as A from '../Array'
+import * as NEL from '../NonEmptyArray'
 import * as R from '../Record'
-import * as Sg from '../Semigroup'
-import { Apply, Monad, Failable, Eitherable, HKT, Kind } from '../hkt'
+import { Semigroup } from '@benjstephenson/kittens-ts-core/dist/src/Semigroup'
+import { Apply } from '@benjstephenson/kittens-ts-core/dist/src/Apply'
+import { Monad } from '@benjstephenson/kittens-ts-core/dist/src/Monad'
+import { Failable } from '@benjstephenson/kittens-ts-core/dist/src/Failable'
+import { HKT, Kind } from '@benjstephenson/kittens-ts-core/dist/src/HKT'
 import * as E from '../Either'
 
 export interface Validation<F extends HKT, E> extends HKT {
@@ -13,12 +17,12 @@ const getZippable =
   <R, R1, E, E1, A, A1>(fa: Kind<F, R, E, A>, fb: Kind<F, R1, E1, A1>) =>
     F.ap(
       fa,
-      F.map((b) => (a: A) => [a, b] as const, fb)
+      F.map(b => (a: A) => [a, b] as const, fb)
     )
 
 export const getMonadValidation =
-  <F extends HKT>(M: Monad<F>, F: Failable<F>, E: Eitherable<F>) =>
-  <Z>(S: Sg.Semigroup<Z>): Monad<Validation<F, Z>> => {
+  <F extends HKT>(M: Monad<F>, F: Failable<F>, E: E.Eitherable<F>) =>
+  <Z>(S: Semigroup<Z>): Monad<Validation<F, Z>> => {
     const zip = getZippable(M)
 
     return {
@@ -31,11 +35,11 @@ export const getMonadValidation =
           else if (ea.isLeft()) return F.fail(ea.get())
           else if (efab.isLeft()) return F.fail(efab.get())
           else return M.of(efab.get()(ea.get()))
-        }, zip(E.toEither(fa), E.toEither(fab))),
+        }, zip(E.toEither(fa), E.toEither(fab)))
     }
   }
 
-export const getEitherValidation = <A>() => getMonadValidation(E.monad, E.failable, E.eitherable)(Sg.nel<A>())
+export const getEitherValidation = <A>() => getMonadValidation(E.monad, E.failable, E.eitherable)(NEL.semigroup<A>())
 
 export const getValidationNel = <A>() => A.sequenceT(getEitherValidation<A>())
 

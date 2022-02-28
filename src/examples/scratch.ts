@@ -2,12 +2,16 @@ import * as E from '../Either'
 import * as A from '../Array'
 import * as O from '../Option'
 import * as T from '../Task'
-import { Apply, getApply, identityM } from '../hkt'
-import { pipe } from '../functions'
+import { Apply, getApply } from '@benjstephenson/kittens-ts-core/dist/src/Apply'
+import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
+import { identityM } from '@benjstephenson/kittens-ts-core/dist/src/Id'
 
-const foo = [1, 2, 3].map((x) => O.some(x))
+const foo = [1, 2, 3].map(x => O.some(x))
 const bar = A.sequence(O.applicative)([O.some(1), O.some(2), O.some(3)])
-const a = A.traverse(O.applicative)((x) => O.some(x.toString()), [1, 2, 3])
+const a = pipe(
+  [1, 2, 3],
+  A.traverse(O.applicative)(x => O.some(x.toString()))
+)
 
 const b = A.sequenceT(O.apply)(O.some(1), O.some(2), O.some(''), O.some(true))
 
@@ -21,10 +25,13 @@ const f = (x: number): E.Either<string, number> => (x > 1 ? E.left('oh dear') : 
 const g = (x: number): E.Either<boolean, string> => (x > 1 ? E.left(false) : E.right(x.toString()))
 
 const eb = E.right<string, number>(1).flatMap(f).flatMap(g)
-const ea = E.flatMap(g, E.flatMap(f, E.left<number, number>(1)))
+const ea = E._flatMap(g, E._flatMap(f, E.left<number, number>(1)))
 
-const c = pipe(E.left<number, number>(1), E.flatMap_(f), E.flatMap_(g))
+const c = pipe(E.left<number, number>(1), E.flatMap(f), E.flatMap(g))
 
 const taskArray = [T.of(() => Promise.resolve(1))]
-const traversedTask = A.traverse(T.applicative)((a) => a.map((x) => x.toString()), taskArray)
+const traversedTask = pipe(
+  taskArray,
+  A.traverse(T.applicative)(a => a.map(x => x.toString()))
+)
 const sequencedTask = A.sequence(T.applicative)(taskArray)

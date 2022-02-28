@@ -3,7 +3,8 @@ import * as fc from 'fast-check'
 import * as A from '../src/Array'
 import * as O from '../src/Option'
 import * as E from '../src/Either'
-import { getCompose } from '../src/hkt'
+import { getCompose } from '@benjstephenson/kittens-ts-core/dist/src/Compose'
+import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
 
 describe('Array', () => {
   it('sequences a tuple', () => {
@@ -22,7 +23,7 @@ describe('Array', () => {
         fc.property(fc.integer(), fc.integer(), fc.integer(), (num, num2, num3) => {
           const array = [O.some(num), O.some(num2), O.some(num3)]
 
-          assertThat(A.traverse(O.applicative)(O.applicative.of, array)).is(O.applicative.of(array))
+          assertThat(A.traverse(O.applicative)(O.applicative.of)(array)).is(O.applicative.of(array))
         })
       )
     })
@@ -35,9 +36,7 @@ describe('Array', () => {
 
           const array = [O.some(num), O.some(num2), O.some(num3)]
 
-          assertThat(transformation(A.sequence(O.applicative)(array))).is(
-            A.traverse(E.applicative)(transformation, array)
-          )
+          assertThat(transformation(A.sequence(O.applicative)(array))).is(A.traverse(E.applicative)(transformation)(array))
         })
       )
     })
@@ -56,7 +55,7 @@ describe('Array', () => {
           const compose = getCompose(O.applicative, E.applicative)
           const array = [O.some(E.right(num)), O.some(E.right(num2)), O.some(E.right(num3))]
 
-          assertThat(O.map(A.sequence(E.applicative), A.sequence(O.applicative)(array))).is(A.sequence(compose)(array))
+          assertThat(O.map(A.sequence(E.applicative))(pipe(array, A.sequence(O.applicative)))).is(A.sequence(compose)(array))
         })
       )
     })

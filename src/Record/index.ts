@@ -1,4 +1,5 @@
-import { Applicative, Kind, HKT } from '../hkt'
+import { Kind, HKT } from '@benjstephenson/kittens-ts-core/dist/src/HKT'
+import { Applicative } from '@benjstephenson/kittens-ts-core/dist/src/Applicative'
 
 export const keys = <K extends string>(r: Record<K, any>): K[] => Object.keys(r) as any
 

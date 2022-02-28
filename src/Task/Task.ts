@@ -1,3 +1,4 @@
+import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
 import { Lazy } from '../hkt'
 import * as fns from './functions'
 
@@ -26,16 +27,16 @@ export class Task<A> {
     onRejected?: ((reason: any) => TResult2 | PromiseLike<TResult2>) | undefined | null
   ): PromiseLike<TResult1 | TResult2> {
     return this.thunk().then(
-      (x) => onResolved(x),
-      (rejected) => (onRejected ? onRejected(rejected) : Promise.reject<TResult2>(rejected))
+      x => onResolved(x),
+      rejected => (onRejected ? onRejected(rejected) : Promise.reject<TResult2>(rejected))
     )
   }
 
   map<B>(f: (a: A) => B): Task<B> {
-    return fns.map(f, this)
+    return pipe(this, fns.map(f))
   }
 
   flatMap<B>(f: (a: A) => Task<B>): Task<B> {
-    return fns.flatMap(f, this)
+    return pipe(this, fns.flatMap(f))
   }
 }

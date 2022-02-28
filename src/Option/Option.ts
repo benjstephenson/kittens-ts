@@ -2,6 +2,7 @@ import * as Eq from '../Equal'
 import * as E from '../Either'
 import * as fns from './functions'
 import { getEquals } from './instances'
+import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
 
 export type Option<A> = Some<A> | None<A>
 
@@ -49,11 +50,11 @@ export class Some<A> implements IOption<A> {
   }
 
   map<B>(f: (a: A) => B): Option<B> {
-    return fns.map(f, this)
+    return pipe(this, fns.map(f))
   }
 
   flatMap<B>(f: (a: A) => Option<B>): Option<B> {
-    return fns.flatMap(f, this)
+    return pipe(this, fns.flatMap(f))
   }
 
   getOrElse(_default: A): A {
@@ -65,7 +66,7 @@ export class Some<A> implements IOption<A> {
   }
 
   orElse(other: Option<A>): Option<A> {
-    return fns.alt(other, this)
+    return pipe(this, fns.alt(other))
   }
 
   toEither<E>(e: E): E.Either<E, A> {
@@ -89,11 +90,11 @@ export class None<A> implements IOption<A> {
   }
 
   map<B>(f: (a: A) => B): Option<B> {
-    return fns.map(f, this)
+    return pipe(this, fns.map(f))
   }
 
   flatMap<B>(f: (a: A) => Option<B>): Option<B> {
-    return fns.flatMap(f, this)
+    return pipe(this, fns.flatMap(f))
   }
 
   getOrElse(fallback: A): A {
@@ -105,7 +106,7 @@ export class None<A> implements IOption<A> {
   }
 
   orElse(other: Option<A>): Option<A> {
-    return fns.alt(other, this)
+    return pipe(this, fns.alt(other))
   }
 
   toEither<E>(e: E): E.Either<E, A> {

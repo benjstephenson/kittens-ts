@@ -1,7 +1,8 @@
 import * as O from '../Option'
 import { getEquals } from './instances'
-import * as Eq from '../Equal'
 import * as fns from './functions'
+import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
+import * as Eq from '@benjstephenson/kittens-ts-core/dist/src/Equal'
 
 export type Either<E, A> = Left<E, A> | Right<E, A>
 
@@ -61,27 +62,27 @@ export class Left<E, A> implements EitherFns<E, A> {
   }
 
   ap<B>(fab: Either<E, (r: A) => B>): Either<E, B> {
-    return fns.ap(this, fab)
+    return pipe(fab, fns.ap(this))
   }
 
   map<B>(f: (a: A) => B): Either<E, B> {
-    return fns.map(f, this)
+    return pipe(this, fns.map(f))
   }
 
   mapLeft<M>(f: (l: E) => M): Either<M, A> {
-    return fns.mapLeft(f, this)
+    return pipe(this, fns.mapLeft(f))
   }
 
   flatMap<E2, B>(f: (r: A) => Either<E2, B>): Either<E | E2, B> {
-    return fns.flatMap(f, this)
+    return pipe(this, fns.flatMap(f))
   }
 
   bimap<EE, AA>(fo: { Left: (e: E) => EE; Right: (a: A) => AA }): Either<EE, AA> {
-    return fns.bimap(fo, this)
+    return pipe(this, fns.bimap(fo))
   }
 
   fold<B>(f: (acc: B, a: A) => B, init: B): B {
-    return fns.fold(f, init, this)
+    return pipe(this, fns.fold(f, init))
   }
 
   toOption(): O.Option<A> {
@@ -114,16 +115,16 @@ export class Right<E, A> implements EitherFns<E, A> {
     return this.value
   }
 
-  getOrThrow(error: Error): A {
+  getOrThrow(_: Error): A {
     return this.value
   }
 
   ap<E2, B>(fab: Either<E2, (r: A) => B>): Either<E | E2, B> {
-    return fns.ap<E, E2, A, B>(this, fab)
+    return fns._ap<E, E2, A, B>(this, fab)
   }
 
-  map<B>(f: (a: A) => B) {
-    return fns.map<E, A, B>(f, this)
+  map<B>(f: (a: A) => B): Either<E, B> {
+    return fns._map<E, A, B>(f, this)
   }
 
   mapLeft<E2>(_f: (l: E) => E2): Either<E2, A> {
@@ -131,15 +132,15 @@ export class Right<E, A> implements EitherFns<E, A> {
   }
 
   flatMap<E2, B>(f: (r: A) => Either<E2, B>): Either<E | E2, B> {
-    return fns.flatMap<E, E2, A, B>(f, this)
+    return fns._flatMap<E, E2, A, B>(f, this)
   }
 
   bimap<E2, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }): Either<E2, B> {
-    return fns.bimap(fo, this)
+    return fns._bimap(fo, this)
   }
 
   fold<B>(f: (acc: B, a: A) => B, init: B): B {
-    return fns.fold(f, init, this)
+    return fns._fold(f, init, this)
   }
 
   toOption(): O.Option<A> {
