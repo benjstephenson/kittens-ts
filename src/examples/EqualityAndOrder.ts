@@ -1,7 +1,7 @@
 import * as A from '../Array'
-import * as Eq from '../Equal'
-import * as Ord from '../Orderable'
-import * as M from '../Monoid'
+import * as Eq from '@benjstephenson/kittens-ts-core/dist/src/Equal'
+import * as Ord from '@benjstephenson/kittens-ts-core/dist/src/Orderable'
+import * as M from '@benjstephenson/kittens-ts-core/dist/src/Monoid'
 
 /*
   Deriving equality for ADTs
@@ -20,7 +20,7 @@ const cat2: Cat = { name: 'Mittens    ', lives: 6, isGrumpy: true }
 const catEqualityStrict = Eq.record<Cat>({
   name: Eq.string,
   lives: Eq.number,
-  isGrumpy: Eq.boolean,
+  isGrumpy: Eq.boolean
 })
 
 catEqualityStrict.equals(cat1, cat2)
@@ -33,7 +33,7 @@ const maybeGrumpy = Eq.from((x: boolean, y: boolean) => x || y)
 const fuzzyCatEquality = Eq.record<Cat>({
   name: ignoreWhitespace,
   lives: fuzzyLives,
-  isGrumpy: maybeGrumpy,
+  isGrumpy: maybeGrumpy
 })
 
 fuzzyCatEquality.equals(cat1, cat2)

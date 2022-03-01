@@ -1,6 +1,6 @@
 import * as A from '../Array'
 import * as NEL from '../NonEmptyArray'
-import * as R from '../Record'
+import * as R from '@benjstephenson/kittens-ts-core/dist/src/Record'
 import { Semigroup } from '@benjstephenson/kittens-ts-core/dist/src/Semigroup'
 import { Apply } from '@benjstephenson/kittens-ts-core/dist/src/Apply'
 import { Monad } from '@benjstephenson/kittens-ts-core/dist/src/Monad'

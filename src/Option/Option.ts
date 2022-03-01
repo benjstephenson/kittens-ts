@@ -1,8 +1,8 @@
-import * as Eq from '../Equal'
 import * as E from '../Either'
 import * as fns from './functions'
 import { getEquals } from './instances'
 import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
+import * as Eq from '@benjstephenson/kittens-ts-core/dist/src/Equal'
 
 export type Option<A> = Some<A> | None<A>
 

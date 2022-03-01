@@ -1,4 +1,4 @@
-import * as S from '../Semigroup'
+import * as S from '@benjstephenson/kittens-ts-core/dist/src/Semigroup'
 
 /*
  * A Semigroup describes how we can combine two things together.
@@ -28,7 +28,7 @@ const user2: User = { name: 'Bobby Bobson 2', registeredDate: new Date(new Date(
 const earliestUser = S.record<User>({
   name: S.string,
   registeredDate: S.from<Date>((x, y) => (x.valueOf() < y.valueOf() ? x : y)),
-  loginCount: S.sum,
+  loginCount: S.sum
 })
 
 earliestUser.concat(user1, user2)
