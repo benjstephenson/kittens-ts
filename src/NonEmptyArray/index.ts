@@ -1,4 +1,4 @@
-import { Semigroup } from '@benjstephenson/kittens-ts-core/dist/src/Semigroup'
+import { Semigroup as _Semigroup } from '../core/Semigroup'
 
 export type NonEmptyArray<T> = Array<T> & {
   readonly 0: T
@@ -9,7 +9,7 @@ export const isNonEmptyArray = <T>(list: Array<T>): list is NonEmptyArray<T> => 
 export const head: <T>(l: NonEmptyArray<T>) => T = l => l.slice(0, 1)[0]
 export const tail: <T>(l: NonEmptyArray<T>) => T[] = l => l.slice(1)
 
-export const semigroup = <A>(): Semigroup<NonEmptyArray<A>> => ({
+export const Semigroup = <A>(): _Semigroup<NonEmptyArray<A>> => ({
   concat
 })
 

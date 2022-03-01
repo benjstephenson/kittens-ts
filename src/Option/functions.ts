@@ -1,8 +1,8 @@
 import { None, Option, Some } from './Option'
 import { isNonEmptyArray } from '../NonEmptyArray'
-import { Applicative } from '@benjstephenson/kittens-ts-core/dist/src/Applicative'
-import { HKT, Kind } from '@benjstephenson/kittens-ts-core/dist/src/HKT'
-import { pipe, tuple } from '@benjstephenson/kittens-ts-core/dist/src/functions'
+import { Applicative } from '../core/Applicative'
+import { HKT, Kind } from '../core/HKT'
+import { pipe, tuple } from '../core/functions'
 
 export const none = <A>(): Option<A> => new None()
 

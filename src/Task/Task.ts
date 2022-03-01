@@ -1,5 +1,5 @@
-import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
-import { Lazy } from '@benjstephenson/kittens-ts-core/dist/src/types'
+import { pipe } from '../core/functions'
+import { Lazy } from '../core/types'
 import * as fns from './functions'
 
 /*

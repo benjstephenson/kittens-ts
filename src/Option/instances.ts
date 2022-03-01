@@ -1,19 +1,19 @@
 import type { Option } from './Option'
 import * as fns from './functions'
-import { Alt as _Alt } from '@benjstephenson/kittens-ts-core/dist/src/Alt'
-import { Applicative } from '@benjstephenson/kittens-ts-core/dist/src/Applicative'
-import { Equal } from '@benjstephenson/kittens-ts-core/dist/src/Equal'
-import { Semigroup } from '@benjstephenson/kittens-ts-core/dist/src/Semigroup'
-import { ComposeF } from '@benjstephenson/kittens-ts-core/dist/src/Compose'
-import { Apply } from '@benjstephenson/kittens-ts-core/dist/src/Apply'
-import { Functor } from '@benjstephenson/kittens-ts-core/dist/src/Functor'
-import { Monad } from '@benjstephenson/kittens-ts-core/dist/src/Monad'
-import { Monoid } from '@benjstephenson/kittens-ts-core/dist/src/Monoid'
-import { Foldable } from '@benjstephenson/kittens-ts-core/dist/src/Foldable'
-import { Traversable } from '@benjstephenson/kittens-ts-core/dist/src/Traversable'
-import { HKT } from '@benjstephenson/kittens-ts-core/dist/src/HKT'
-import { identityM } from '@benjstephenson/kittens-ts-core/dist/src/Id'
-import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
+import { Alt as _Alt } from '../core/Alt'
+import { Applicative as _Applicative } from '../core/Applicative'
+import { Equal } from '../core/Equal'
+import { Semigroup } from '../core/Semigroup'
+import { ComposeF } from '../core/Compose'
+import { Apply as _Apply } from '../core/Apply'
+import { Functor as _Functor } from '../core/Functor'
+import { Monad as _Monad } from '../core/Monad'
+import { Monoid } from '../core/Monoid'
+import { Foldable as _Foldable } from '../core/Foldable'
+import { Traversable as _Traversable } from '../core/Traversable'
+import { HKT } from '../core/HKT'
+import { identityM } from '../core/Id'
+import { pipe } from '../core/functions'
 
 export interface OptionF extends HKT {
   readonly type: Option<this['A']>
@@ -32,40 +32,40 @@ export const getEquals = <A>(eq: Equal<A>): Equal<Option<A>> => ({
   equals: (a, b) => a.isSome() && b.isSome() && eq.equals(a.get(), b.get())
 })
 
-export const functor: Functor<OptionF> = {
+export const Functor: _Functor<OptionF> = {
   map: fns._map
 }
 
-export const apply: Apply<OptionF> = {
-  ...functor,
+export const Apply: _Apply<OptionF> = {
+  ...Functor,
   ap: fns._ap
 }
 
-export const applicative: Applicative<OptionF> = {
-  ...apply,
+export const Applicative: _Applicative<OptionF> = {
+  ...Apply,
   of: fns.of
 }
 
-export const alt: _Alt<OptionF> = {
+export const Alt: _Alt<OptionF> = {
   alt: fns._alt
 }
 
-export const foldable: Foldable<OptionF> = {
+export const Foldable: _Foldable<OptionF> = {
   fold: (f, init, fa) => (fa.isNone() ? init : f(init, fa.get()))
 }
 
-export const traversable: Traversable<OptionF> = {
+export const Traversable: _Traversable<OptionF> = {
   traverse: fns._traverse,
   sequence: fns.sequence
 }
 
-export const monad: Monad<OptionF> = optionT(identityM)
+export const Monad: _Monad<OptionF> = optionT(identityM)
 // export const monad: Monad<OptionF> = {
 //   ...applicative,
 //   flatMap: fns.flatMap,
 // }
 
-export function optionT<F extends HKT>(F: Monad<F>): Monad<ComposeF<F, OptionF>> {
+export function optionT<F extends HKT>(F: _Monad<F>): _Monad<ComposeF<F, OptionF>> {
   return {
     ap: (fa, fab) => F.flatMap(a => F.map(ab => fns._ap(a, ab), fab), fa),
     of: a => F.of(fns.some(a)),

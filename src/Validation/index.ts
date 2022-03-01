@@ -1,11 +1,11 @@
 import * as A from '../Array'
 import * as NEL from '../NonEmptyArray'
-import * as R from '@benjstephenson/kittens-ts-core/dist/src/Record'
-import { Semigroup } from '@benjstephenson/kittens-ts-core/dist/src/Semigroup'
-import { Apply } from '@benjstephenson/kittens-ts-core/dist/src/Apply'
-import { Monad } from '@benjstephenson/kittens-ts-core/dist/src/Monad'
-import { Failable } from '@benjstephenson/kittens-ts-core/dist/src/Failable'
-import { HKT, Kind } from '@benjstephenson/kittens-ts-core/dist/src/HKT'
+import * as R from '../core/Record'
+import { Semigroup } from '../core/Semigroup'
+import { Apply } from '../core/Apply'
+import { Monad } from '../core/Monad'
+import { Failable } from '../core/Failable'
+import { HKT, Kind } from '../core/HKT'
 import * as E from '../Either'
 
 export interface Validation<F extends HKT, E> extends HKT {
@@ -39,7 +39,7 @@ export const getMonadValidation =
     }
   }
 
-export const getEitherValidation = <A>() => getMonadValidation(E.monad, E.failable, E.eitherable)(NEL.semigroup<A>())
+export const getEitherValidation = <A>() => getMonadValidation(E.Monad, E.Failable, E.eitherable)(NEL.Semigroup<A>())
 
 export const getValidationNel = <A>() => A.sequenceT(getEitherValidation<A>())
 

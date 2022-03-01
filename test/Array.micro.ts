@@ -3,14 +3,14 @@ import * as fc from 'fast-check'
 import * as A from '../src/Array'
 import * as O from '../src/Option'
 import * as E from '../src/Either'
-import { getCompose } from '@benjstephenson/kittens-ts-core/dist/src/Compose'
-import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
+import { getCompose } from '../src/core/Compose'
+import { pipe } from '../src/core/functions'
 
 describe('Array', () => {
   it('sequences a tuple', () => {
     fc.assert(
       fc.property(fc.integer(), fc.boolean(), fc.string(), (num, bool, str) => {
-        const tupled = A.sequenceT(O.apply)(O.some(num), O.some(bool), O.some(str))
+        const tupled = A.sequenceT(O.Apply)(O.some(num), O.some(bool), O.some(str))
         assertThat(tupled).is(O.some([num, bool, str]))
       })
     )
@@ -23,7 +23,7 @@ describe('Array', () => {
         fc.property(fc.integer(), fc.integer(), fc.integer(), (num, num2, num3) => {
           const array = [O.some(num), O.some(num2), O.some(num3)]
 
-          assertThat(A.traverse(O.applicative)(O.applicative.of)(array)).is(O.applicative.of(array))
+          assertThat(A.traverse(O.Applicative)(O.Applicative.of)(array)).is(O.Applicative.of(array))
         })
       )
     })
@@ -36,7 +36,7 @@ describe('Array', () => {
 
           const array = [O.some(num), O.some(num2), O.some(num3)]
 
-          assertThat(transformation(A.sequence(O.applicative)(array))).is(A.traverse(E.applicative)(transformation)(array))
+          assertThat(transformation(A.sequence(O.Applicative)(array))).is(A.traverse(E.Applicative)(transformation)(array))
         })
       )
     })
@@ -48,14 +48,14 @@ describe('Array', () => {
       //         .map(x => x.sequence(G)))
       // Or :
       // traversal in F[_] followed by traversal in G[_] is the same as
-      // one traversal in the composite applicative F[G[_]].F
+      // one traversal in the composite Applicative F[G[_]].F
 
       fc.assert(
         fc.property(fc.integer(), fc.integer(), fc.integer(), (num, num2, num3) => {
-          const compose = getCompose(O.applicative, E.applicative)
+          const compose = getCompose(O.Applicative, E.Applicative)
           const array = [O.some(E.right(num)), O.some(E.right(num2)), O.some(E.right(num3))]
 
-          assertThat(O.map(A.sequence(E.applicative))(pipe(array, A.sequence(O.applicative)))).is(A.sequence(compose)(array))
+          assertThat(O.map(A.sequence(E.Applicative))(pipe(array, A.sequence(O.Applicative)))).is(A.sequence(compose)(array))
         })
       )
     })

@@ -1,17 +1,17 @@
 import { assertThat } from 'mismatched'
 import * as E from '../../src/Either'
 import * as fc from 'fast-check'
-import { id } from '@benjstephenson/kittens-ts-core/dist/src/functions'
+import { id } from '../../src/core/functions'
 
 describe('Either instances', () => {
   const inc = (n: number) => n + 1
 
-  describe('functor laws', () => {
+  describe('Functor laws', () => {
     it('identity', () => {
       fc.assert(
         fc.property(fc.integer(), value => {
           const right = E.right(value)
-          assertThat(E.functor.map(id, right)).is(right)
+          assertThat(E.Functor.map(id, right)).is(right)
         })
       )
     })
@@ -21,22 +21,22 @@ describe('Either instances', () => {
         fc.property(fc.integer(), value => {
           const some = E.right(value)
 
-          assertThat(E.functor.map(inc, E.functor.map(inc, some))).is(E.functor.map(x => inc(inc(x)), some))
+          assertThat(E.Functor.map(inc, E.Functor.map(inc, some))).is(E.Functor.map(x => inc(inc(x)), some))
         })
       )
     })
   })
 
-  describe('applicative laws', () => {
+  describe('Applicative laws', () => {
     it('identity', () => {
       fc.assert(
         fc.property(fc.integer(), value => {
           const some = E.right(value)
 
           assertThat(
-            E.applicative.ap(
+            E.Applicative.ap(
               some,
-              E.applicative.of(x => x)
+              E.Applicative.of(x => x)
             )
           ).is(some)
         })
@@ -48,7 +48,7 @@ describe('Either instances', () => {
       // or we can combine them and then lift the result
       fc.assert(
         fc.property(fc.integer(), value => {
-          assertThat(E.applicative.ap(E.applicative.of(value), E.applicative.of(inc))).is(E.applicative.of(inc(value)))
+          assertThat(E.Applicative.ap(E.Applicative.of(value), E.Applicative.of(inc))).is(E.Applicative.of(inc(value)))
         })
       )
     })
@@ -59,12 +59,12 @@ describe('Either instances', () => {
       // i.e ap just applies the rhs to lhs; no special handling of either
       fc.assert(
         fc.property(fc.integer(), value => {
-          const fab = E.applicative.of(inc)
+          const fab = E.Applicative.of(inc)
 
-          assertThat(E.applicative.ap(E.applicative.of(value), fab)).is(
-            E.applicative.ap(
+          assertThat(E.Applicative.ap(E.Applicative.of(value), fab)).is(
+            E.Applicative.ap(
               fab,
-              E.applicative.of(f => f(value))
+              E.Applicative.of(f => f(value))
             )
           )
         })
@@ -72,15 +72,15 @@ describe('Either instances', () => {
     })
   })
 
-  describe('monadic laws', () => {
-    const f = (x: number) => E.monad.of(inc(x))
+  describe('Monadic laws', () => {
+    const f = (x: number) => E.Monad.of(inc(x))
 
     it('left identity', () => {
       fc.assert(
         fc.property(fc.integer(), value => {
-          const pure = E.monad.of(value)
+          const pure = E.Monad.of(value)
 
-          assertThat(E.monad.flatMap(f, pure)).is(f(value))
+          assertThat(E.Monad.flatMap(f, pure)).is(f(value))
         })
       )
     })
@@ -88,9 +88,9 @@ describe('Either instances', () => {
     it('right identity', () => {
       fc.assert(
         fc.property(fc.integer(), value => {
-          const pure = E.monad.of(value)
+          const pure = E.Monad.of(value)
 
-          assertThat(E.monad.flatMap(E.monad.of, pure)).is(pure)
+          assertThat(E.Monad.flatMap(E.Monad.of, pure)).is(pure)
         })
       )
     })
@@ -98,9 +98,9 @@ describe('Either instances', () => {
     it('associativity', () => {
       fc.assert(
         fc.property(fc.integer(), a => {
-          const pure = E.monad.of(a)
+          const pure = E.Monad.of(a)
 
-          assertThat(E.monad.flatMap(f, E.monad.flatMap(f, pure))).is(E.monad.flatMap(x => E.monad.flatMap(f, f(x)), pure))
+          assertThat(E.Monad.flatMap(f, E.Monad.flatMap(f, pure))).is(E.Monad.flatMap(x => E.Monad.flatMap(f, f(x)), pure))
         })
       )
     })

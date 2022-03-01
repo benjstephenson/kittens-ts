@@ -1,6 +1,5 @@
 import { Task } from './Task'
-import { id } from '@benjstephenson/kittens-ts-core/dist/src/functions'
-import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
+import { id, pipe } from '../core/functions'
 
 export const of = <A>(a: A) => new Task(() => Promise.resolve(a))
 

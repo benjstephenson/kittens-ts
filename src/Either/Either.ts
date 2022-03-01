@@ -1,8 +1,8 @@
 import * as O from '../Option'
 import { getEquals } from './instances'
 import * as fns from './functions'
-import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
-import * as Eq from '@benjstephenson/kittens-ts-core/dist/src/Equal'
+import { pipe } from '../core/functions'
+import * as Eq from '../core/Equal'
 
 export type Either<E, A> = Left<E, A> | Right<E, A>
 

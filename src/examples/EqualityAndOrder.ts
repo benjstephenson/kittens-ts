@@ -1,7 +1,7 @@
 import * as A from '../Array'
-import * as Eq from '@benjstephenson/kittens-ts-core/dist/src/Equal'
-import * as Ord from '@benjstephenson/kittens-ts-core/dist/src/Orderable'
-import * as M from '@benjstephenson/kittens-ts-core/dist/src/Monoid'
+import * as Eq from '../core/Equal'
+import * as Ord from '../core/Orderable'
+import * as M from '../core/Monoid'
 
 /*
   Deriving equality for ADTs
@@ -59,13 +59,13 @@ dateEquality.equals(date1, date2)
 
 // Similar concept, if we know how to order a field then we can order an array of objects
 const orderCatByLives: Ord.Orderable<Cat> = Ord.from((a, b) => (a.lives < b.lives ? -1 : a.lives > b.lives ? 1 : 0))
-A.sort([cat1, cat2], orderCatByLives)
+A.sort(orderCatByLives)([cat1, cat2])
 // this ^^^ is basically the same as the usual JS way of doing it   vvv
 Array.of(cat1, cat2).sort((a, b) => (a.lives < b.lives ? -1 : a.lives > b.lives ? 1 : 0))
 
 // we're just ordering by lives, which is a number.  Can we tidy this up with a contramap?
 const orderCatByLives2 = Ord.contramap((c: Cat) => c.lives, Ord.number)
-A.sort([cat1, cat2], orderCatByLives2)
+A.sort(orderCatByLives2)([cat1, cat2])
 
 // nicer, and hopefully a bit easier to read. What if we wanted to sort by more than one field at a time?
 // Here we need to use something called a Monoid. We'll cover that in depth elsewhere, but for now know that it's a type that allows us to
@@ -78,7 +78,7 @@ const byName = Ord.contramap((x: Cat) => x.name, Ord.string)
 // we're 'adding together' the sort functions
 const sortableCat = M.fold(catM)([bylives, byName])
 
-A.sort([cat1, cat2], sortableCat)
+A.sort(sortableCat)([cat1, cat2])
 
 /*
  * If we know how to order something, then that implies that we know how to compare them also -> if A is ! < B && A ! > B then A must === B

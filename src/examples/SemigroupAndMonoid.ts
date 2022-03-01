@@ -1,4 +1,4 @@
-import * as S from '@benjstephenson/kittens-ts-core/dist/src/Semigroup'
+import * as S from '../core/Semigroup'
 
 /*
  * A Semigroup describes how we can combine two things together.

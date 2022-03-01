@@ -1,6 +1,6 @@
-import { pipe } from '@benjstephenson/kittens-ts-core/dist/src/functions'
-import { Applicative } from '@benjstephenson/kittens-ts-core/dist/src/Applicative'
-import { HKT, Kind } from '@benjstephenson/kittens-ts-core/dist/src/HKT'
+import { pipe } from '../core/functions'
+import { Applicative } from '../core/Applicative'
+import { HKT, Kind } from '../core/HKT'
 import { Either, Left, Right } from './Either'
 
 export const left: <E, A>(l: E) => Either<E, A> = l => new Left(l)
