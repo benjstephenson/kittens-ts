@@ -21,7 +21,7 @@ const getZippable =
     )
 
 export const getMonadValidation =
-  <F extends HKT>(M: Monad<F>, F: Failable<F>, E: E.Eitherable<F>) =>
+  <F extends HKT>(M: Monad<F>, F: Failable<F>, Eable: E.Eitherable<F>) =>
   <Z>(S: Semigroup<Z>): Monad<Validation<F, Z>> => {
     const zip = getZippable(M)
 
@@ -31,11 +31,11 @@ export const getMonadValidation =
       flatMap: M.flatMap,
       ap: (fa, fab) =>
         M.flatMap(([ea, efab]) => {
-          if (ea.isLeft() && efab.isLeft()) return F.fail(S.concat(ea.get(), efab.get()))
-          else if (ea.isLeft()) return F.fail(ea.get())
-          else if (efab.isLeft()) return F.fail(efab.get())
-          else return M.of(efab.get()(ea.get()))
-        }, zip(E.toEither(fa), E.toEither(fab)))
+          if (E.isLeft(ea) && E.isLeft(efab)) return F.fail(S.concat(ea.value, efab.value))
+          else if (E.isLeft(ea)) return F.fail(ea.value)
+          else if (E.isLeft(efab)) return F.fail(efab.value)
+          else return M.of(efab.value(ea.value))
+        }, zip(Eable.toEither(fa), Eable.toEither(fab)))
     }
   }
 

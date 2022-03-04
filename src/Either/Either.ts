@@ -35,7 +35,7 @@ interface EitherFns<E, A> {
 export class Left<E, A> implements EitherFns<E, A> {
   readonly tag = 'Left'
 
-  constructor(private readonly value: E) {}
+  constructor(readonly value: E) {}
 
   isLeft(): this is Left<E, A> {
     return true
@@ -47,10 +47,6 @@ export class Left<E, A> implements EitherFns<E, A> {
 
   equals(other: Either<E, A>, eqE = Eq.withDefault<E>(), eqA = Eq.withDefault<A>()): boolean {
     return getEquals(eqE, eqA).equals(this, other)
-  }
-
-  get(): E {
-    return this.value
   }
 
   getOrElse(other: A): A {
@@ -93,7 +89,7 @@ export class Left<E, A> implements EitherFns<E, A> {
 export class Right<E, A> implements EitherFns<E, A> {
   readonly tag = 'Right'
 
-  constructor(private readonly value: A) {}
+  constructor(readonly value: A) {}
 
   isLeft(): this is Left<E, A> {
     return false
@@ -101,10 +97,6 @@ export class Right<E, A> implements EitherFns<E, A> {
 
   isRight(): this is Right<E, A> {
     return true
-  }
-
-  get(): A {
-    return this.value
   }
 
   equals(other: Either<E, A>, eqE = Eq.withDefault<E>(), eqA = Eq.withDefault<A>()): boolean {

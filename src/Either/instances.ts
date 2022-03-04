@@ -10,16 +10,15 @@ import { Failable as _Failable } from '../core/Failable'
 import { Monad as _Monad } from '../core/Monad'
 import { Foldable as _Foldable } from '../core/Foldable'
 import { Traversable as _Traversable } from '../core/Traversable'
-import { HKT, Kind } from '../core/HKT'
+import { HKT } from '../core/HKT'
 import { Eitherable } from '.'
-import { EitherT } from '../EitherT'
 
 export interface EitherF extends HKT {
   readonly type: Either<this['E'], this['A']>
 }
 
 export const getSemigroup = <E, A>(S: Semigroup<A>): Semigroup<Either<E, A>> => ({
-  concat: (x, y) => (y.isLeft() ? x : x.isLeft() ? y : fns.right(S.concat(x.get(), y.get())))
+  concat: (x, y) => (y.isLeft() ? x : x.isLeft() ? y : fns.right(S.concat(x.value, y.value)))
 })
 
 export const Functor: _Functor<EitherF> = {
@@ -59,16 +58,5 @@ export const eitherable: Eitherable<EitherF> = {
 }
 
 export const getEquals = <E, A>(eqE: Equal<E>, eqA: Equal<A>): Equal<Either<E, A>> => ({
-  equals: (x, y) => (x.isLeft() && y.isLeft() ? eqE.equals(x.get(), y.get()) : x.isRight() && y.isRight() ? eqA.equals(x.get(), y.get()) : false)
+  equals: (x, y) => (x.isLeft() && y.isLeft() ? eqE.equals(x.value, y.value) : x.isRight() && y.isRight() ? eqA.equals(x.value, y.value) : false)
 })
-
-export function eitherT<F extends HKT>(F: _Monad<F>): _Monad<EitherT<F>> {
-  return {
-    ap: (fa, fab) => F.flatMap(a => F.map(ab => fns._ap(a, ab), fab), fa),
-    of: a => F.of(fns.right(a)),
-    map: (ff, faa) => F.map(aa => fns._map(ff, aa), faa),
-
-    flatMap: <R, R2, E, E2, A, B>(f: (a: A) => Kind<F, R2, never, Either<E2, B>>, faa: Kind<F, R, never, Either<E, A>>): Kind<F, R & R2, never, Either<E | E2, B>> =>
-      F.flatMap(aa => (aa.isLeft() ? F.of(fns.leftWiden(fns.left(aa.get()))) : f(aa.get())), faa)
-  }
-}

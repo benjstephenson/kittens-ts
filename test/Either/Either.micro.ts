@@ -5,19 +5,19 @@ import * as fc from 'fast-check'
 describe('Either', () => {
   describe('Right', () => {
     it('isRight', () => {
-      fc.assert(fc.property(fc.anything(), (value) => assertThat(E.right(value).isRight()).is(true)))
+      fc.assert(fc.property(fc.anything(), value => assertThat(E.right(value).isRight()).is(true)))
     })
 
     it('isLeft', () => {
-      fc.assert(fc.property(fc.anything(), (value) => assertThat(E.right(value).isLeft()).is(false)))
+      fc.assert(fc.property(fc.anything(), value => assertThat(E.right(value).isLeft()).is(false)))
     })
 
     it('get', () => {
       fc.assert(
-        fc.property(fc.anything(), (value) => {
+        fc.property(fc.anything(), value => {
           const right = E.right(value)
 
-          assertThat(right.get()).is(value)
+          assertThat(right.value).is(value)
         })
       )
     })
@@ -25,9 +25,9 @@ describe('Either', () => {
     it('map', () => {
       fc.assert(
         fc.property(fc.anything(), fc.anything(), (value, other) => {
-          const result = E.right(value).map((_) => other)
+          const result = E.right(value).map(_ => other)
 
-          if (result.isRight()) assertThat(result.get()).is(other)
+          if (result.isRight()) assertThat(result.value).is(other)
           else fail('Right.map produced a Left')
         })
       )
@@ -36,8 +36,8 @@ describe('Either', () => {
     it('flatMap preserves Right', () => {
       fc.assert(
         fc.property(fc.anything(), fc.anything(), (value, other) => {
-          const some = E.right(value).flatMap((_) => E.right(other))
-          assertThat(some.get()).is(other)
+          const some = E.right(value).flatMap(_ => E.right(other))
+          assertThat(some.value).is(other)
         })
       )
     })
@@ -45,8 +45,8 @@ describe('Either', () => {
     it('flatMap preserves Left', () => {
       fc.assert(
         fc.property(fc.anything(), fc.anything(), (value, other) => {
-          const some = E.right(value).flatMap((_) => E.left(other))
-          assertThat(some.get()).is(other)
+          const some = E.right(value).flatMap(_ => E.left(other))
+          assertThat(some.value).is(other)
         })
       )
     })
@@ -54,11 +54,11 @@ describe('Either', () => {
 
   describe('Left', () => {
     it('isRight', () => {
-      fc.assert(fc.property(fc.anything(), (value) => assertThat(E.left(value).isRight()).is(false)))
+      fc.assert(fc.property(fc.anything(), value => assertThat(E.left(value).isRight()).is(false)))
     })
 
     it('isLeft', () => {
-      fc.assert(fc.property(fc.anything(), (value) => assertThat(E.left(value).isLeft()).is(true)))
+      fc.assert(fc.property(fc.anything(), value => assertThat(E.left(value).isLeft()).is(true)))
     })
 
     it('getOrElse', () => {
@@ -73,8 +73,8 @@ describe('Either', () => {
     it('map', () => {
       fc.assert(
         fc.property(fc.anything(), fc.anything(), (value, other) => {
-          const left = E.left(value).map((_) => other)
-          assertThat(left.get()).is(value)
+          const left = E.left(value).map(_ => other)
+          assertThat(left.value).is(value)
         })
       )
     })
@@ -82,8 +82,8 @@ describe('Either', () => {
     it('flatMap preserves Left', () => {
       fc.assert(
         fc.property(fc.anything(), fc.anything(), (value, other) => {
-          const none = E.left(value).flatMap((_) => E.left(other))
-          assertThat(none.get()).is(value)
+          const none = E.left(value).flatMap(_ => E.left(other))
+          assertThat(none.value).is(value)
         })
       )
     })

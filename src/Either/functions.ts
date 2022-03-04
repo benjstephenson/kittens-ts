@@ -25,19 +25,19 @@ export const _mapLeft = <E, E2, A>(f: (a: E) => E2, fa: Either<E, A>): Either<E2
 export const mapLeft =
   <E, E2>(f: (a: E) => E2) =>
   <A>(fa: Either<E, A>): Either<E2, A> =>
-    fa.isLeft() ? left(f(fa.get())) : right(fa.get())
+    fa.isLeft() ? left(f(fa.value)) : right(fa.value)
 
 export const map =
   <A, B>(f: (a: A) => B) =>
   <E>(fa: Either<E, A>): Either<E, B> =>
-    fa.isRight() ? right(f(fa.get())) : left(fa.get())
+    fa.isRight() ? right(f(fa.value)) : left(fa.value)
 
 export const _map = <E, A, B>(f: (a: A) => B, fa: Either<E, A>): Either<E, B> => map(f)(fa)
 
 export const flatMap =
   <E2, A, B>(f: (a: A) => Either<E2, B>) =>
   <E>(fa: Either<E, A>): Either<E | E2, B> =>
-    fa.isLeft() ? left(fa.get()) : f(fa.get())
+    fa.isLeft() ? left(fa.value) : f(fa.value)
 
 export const _flatMap = <E, E2, A, B>(f: (a: A) => Either<E2, B>, fa: Either<E, A>): Either<E | E2, B> => flatMap(f)(fa)
 
@@ -46,19 +46,19 @@ export const _bimap = <E, E2, A, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B
 export const bimap =
   <E, E2, A, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }) =>
   (fa: Either<E, A>): Either<E2, B> =>
-    fa.isLeft() ? left(fo.Left(fa.get())) : right(fo.Right(fa.get()))
+    fa.isLeft() ? left(fo.Left(fa.value)) : right(fo.Right(fa.value))
 
 export const fold =
   <A, B>(f: (acc: B, a: A) => B, init: B) =>
   <E>(fa: Either<E, A>): B =>
-    fa.isLeft() ? init : f(init, fa.get())
+    fa.isLeft() ? init : f(init, fa.value)
 
 export const _fold = <E, A, B>(f: (acc: B, a: A) => B, init: B, fa: Either<E, A>): B => fold(f, init)(fa)
 
 export const match =
   <E, A, B>(fo: { Left: (e: E) => B; Right: (a: A) => B }) =>
   (fa: Either<E, A>): B =>
-    fa.isLeft() ? fo.Left(fa.get()) : fo.Right(fa.get())
+    fa.isLeft() ? fo.Left(fa.value) : fo.Right(fa.value)
 
 export const _match = <E, A, B>(fo: { Left: (e: E) => B; Right: (a: A) => B }, fa: Either<E, A>): B => match(fo)(fa)
 
@@ -69,9 +69,9 @@ export const traverse =
   <R, E, A, B>(f: (a: A) => Kind<F, R, E, B>) =>
   (fa: Either<E, A>): Kind<F, R, E, Either<E, B>> =>
     fa.isLeft()
-      ? F.of(left(fa.get()))
+      ? F.of(left(fa.value))
       : F.ap(
-          f(fa.get()),
+          f(fa.value),
           F.of(x => right(x))
         )
 

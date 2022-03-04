@@ -1,4 +1,5 @@
 import * as E from '../Either'
+import * as ET from '../EitherT'
 import * as T from '../Task'
 import { HKT } from '../core/HKT'
 import { Monad as _Monad } from '../core/Monad'
@@ -8,7 +9,7 @@ export interface TaskEitherF extends HKT {
   readonly type: TaskEither<this['E'], this['A']>
 }
 
-const teMonad = E.eitherT(T.Monad)
+const teMonad = ET.eitherT(T.Monad)
 
 export const Monad: _Monad<TaskEitherF> = {
   flatMap: (f, fa) => new TaskEither(teMonad.flatMap(x => f(x).get(), fa.get())),
