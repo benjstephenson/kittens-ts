@@ -17,7 +17,7 @@ export const of: <A>(a: A | undefined) => Option<A> = a => (a === undefined ? no
 export const map =
   <A, B>(f: (a: A) => B) =>
   (fa: Option<A>): Option<B> =>
-    fa.isSome() ? some(f(fa.get())) : none()
+    fa.isSome() ? some(f(fa.value)) : none()
 
 export const _map = <A, B>(f: (a: A) => B, fa: Option<A>): Option<B> => map(f)(fa)
 
@@ -31,10 +31,17 @@ export const ap =
 
 export const _ap = <A, B>(fa: Option<A>, fab: Option<(a: A) => B>): Option<B> => pipe(fab, ap(fa))
 
+export const bimap =
+  <A, B>(o: { Some: (a: A) => B; None: () => B }) =>
+  (fa: Option<A>) =>
+    isSome(fa) ? o.Some(fa.value) : o.None()
+
+export const _bimap = <A, B>(o: { Some: (a: A) => B; None: () => B }, fa: Option<A>) => pipe(fa, bimap(o))
+
 export const flatMap =
   <A, B>(f: (a: A) => Option<B>) =>
   (fa: Option<A>): Option<B> =>
-    isSome(fa) ? f(fa.get()) : none()
+    isSome(fa) ? f(fa.value) : none()
 
 export const _flatMap = <A, B>(f: (a: A) => Option<B>, fa: Option<A>): Option<B> => pipe(fa, flatMap(f))
 
@@ -57,7 +64,7 @@ export const traverse =
     fa.isNone()
       ? F.of(none())
       : F.ap(
-          f(fa.get()),
+          f(fa.value),
           F.of(b => some(b))
         )
 

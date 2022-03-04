@@ -29,7 +29,7 @@ interface IOption<A> {
 export class Some<A> implements IOption<A> {
   readonly tag = 'Some'
 
-  constructor(private readonly value: A) {}
+  constructor(readonly value: A) {}
   R?: unknown
   E?: unknown
 
@@ -43,10 +43,6 @@ export class Some<A> implements IOption<A> {
 
   isNone(): this is None<A> {
     return false
-  }
-
-  get(): A {
-    return this.value
   }
 
   map<B>(f: (a: A) => B): Option<B> {

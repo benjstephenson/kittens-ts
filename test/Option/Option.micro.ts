@@ -5,19 +5,19 @@ import * as fc from 'fast-check'
 describe('Option', () => {
   describe('Some', () => {
     it('isSome', () => {
-      fc.assert(fc.property(fc.anything(), (value) => assertThat(O.some(value).isSome()).is(true)))
+      fc.assert(fc.property(fc.anything(), value => assertThat(O.some(value).isSome()).is(true)))
     })
 
     it('isNone', () => {
-      fc.assert(fc.property(fc.anything(), (value) => assertThat(O.some(value).isNone()).is(false)))
+      fc.assert(fc.property(fc.anything(), value => assertThat(O.some(value).isNone()).is(false)))
     })
 
     it('get', () => {
       fc.assert(
-        fc.property(fc.anything(), (value) => {
+        fc.property(fc.anything(), value => {
           const some = O.some(value) as any as O.Some<unknown>
 
-          assertThat(some.get()).is(value)
+          assertThat(some.value).is(value)
         })
       )
     })
@@ -35,9 +35,9 @@ describe('Option', () => {
     it('map', () => {
       fc.assert(
         fc.property(fc.anything(), fc.anything(), (value, other) => {
-          const some = O.some(value).map((_) => other)
+          const some = O.some(value).map(_ => other)
 
-          if (some.isSome()) assertThat(some.get()).is(other)
+          if (some.isSome()) assertThat(some.value).is(other)
           else fail('Some.map produced a None')
         })
       )
@@ -46,18 +46,18 @@ describe('Option', () => {
     it('flatMap preserves Some', () => {
       fc.assert(
         fc.property(fc.anything(), fc.anything(), (value, other) => {
-          const some = O.some(value).flatMap((_) => O.some(other))
+          const some = O.some(value).flatMap(_ => O.some(other))
           assertThat(O.some(value).isSome()).is(true)
 
-          if (some.isSome()) assertThat(some.get()).is(other)
+          if (some.isSome()) assertThat(some.value).is(other)
         })
       )
     })
 
     it('flatMap preserves returns None', () => {
       fc.assert(
-        fc.property(fc.anything(), (value) => {
-          const some = O.some(value).flatMap((_) => O.none())
+        fc.property(fc.anything(), value => {
+          const some = O.some(value).flatMap(_ => O.none())
           assertThat(some.isNone()).is(true)
         })
       )
@@ -75,7 +75,7 @@ describe('Option', () => {
 
     it('getOrElse', () => {
       fc.assert(
-        fc.property(fc.anything(), (value) => {
+        fc.property(fc.anything(), value => {
           const none = O.none()
 
           assertThat(none.getOrElse(value)).is(value)
@@ -85,8 +85,8 @@ describe('Option', () => {
 
     it('map', () => {
       fc.assert(
-        fc.property(fc.anything(), (value) => {
-          const none = O.none().map((_) => value)
+        fc.property(fc.anything(), value => {
+          const none = O.none().map(_ => value)
           assertThat(none.isNone()).is(true)
         })
       )
@@ -94,15 +94,15 @@ describe('Option', () => {
 
     it('flatMap preserves None', () => {
       fc.assert(
-        fc.property(fc.anything(), (value) => {
-          const none = O.none().flatMap((_) => O.some(value))
+        fc.property(fc.anything(), value => {
+          const none = O.none().flatMap(_ => O.some(value))
           assertThat(none.isNone()).is(true)
         })
       )
     })
 
     it('flatMap returns None', () => {
-      const none = O.none().flatMap((_) => O.none())
+      const none = O.none().flatMap(_ => O.none())
       assertThat(none.isNone()).is(true)
     })
   })
@@ -110,7 +110,7 @@ describe('Option', () => {
   describe('Equality', () => {
     it('reflexive', () => {
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           const a = O.some(value)
           assertThat(a.equals(a)).is(true)
         })
@@ -119,7 +119,7 @@ describe('Option', () => {
 
     it('same value', () => {
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           const a = O.some(value)
           const b = O.some(value)
           assertThat(a.equals(b)).is(true)
@@ -140,7 +140,7 @@ describe('Option', () => {
 
     it('none', () => {
       fc.assert(
-        fc.property(fc.integer(), (value) => {
+        fc.property(fc.integer(), value => {
           const a = O.some(value)
           assertThat(a.equals(O.none())).is(false)
         })

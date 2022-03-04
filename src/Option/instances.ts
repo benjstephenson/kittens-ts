@@ -20,7 +20,7 @@ export interface OptionF extends HKT {
 }
 
 export const getSemigroup = <A>(S: Semigroup<A>): Semigroup<Option<A>> => ({
-  concat: (x, y) => (x.isNone() ? y : y.isNone() ? x : fns.some(S.concat(x.get(), y.get())))
+  concat: (x, y) => (x.isNone() ? y : y.isNone() ? x : fns.some(S.concat(x.value, y.value)))
 })
 
 export const getMonoid = <A>(sg: Semigroup<A>): Monoid<Option<A>> => ({
@@ -29,7 +29,7 @@ export const getMonoid = <A>(sg: Semigroup<A>): Monoid<Option<A>> => ({
 })
 
 export const getEquals = <A>(eq: Equal<A>): Equal<Option<A>> => ({
-  equals: (a, b) => a.isSome() && b.isSome() && eq.equals(a.get(), b.get())
+  equals: (a, b) => a.isSome() && b.isSome() && eq.equals(a.value, b.value)
 })
 
 export const Functor: _Functor<OptionF> = {
@@ -51,7 +51,7 @@ export const Alt: _Alt<OptionF> = {
 }
 
 export const Foldable: _Foldable<OptionF> = {
-  fold: (f, init, fa) => (fa.isNone() ? init : f(init, fa.get()))
+  fold: (f, init, fa) => (fa.isNone() ? init : f(init, fa.value))
 }
 
 export const Traversable: _Traversable<OptionF> = {
@@ -70,6 +70,6 @@ export function optionT<F extends HKT>(F: _Monad<F>): _Monad<ComposeF<F, OptionF
     ap: (fa, fab) => F.flatMap(a => F.map(ab => fns._ap(a, ab), fab), fa),
     of: a => F.of(fns.some(a)),
     map: (f, fa) => F.map(a => pipe(a, fns.map(f)), fa),
-    flatMap: (f, fa) => F.flatMap(o => (o.isNone() ? F.of(fns.none()) : f(o.get())), fa)
+    flatMap: (f, fa) => F.flatMap(o => (o.isNone() ? F.of(fns.none()) : f(o.value)), fa)
   }
 }
