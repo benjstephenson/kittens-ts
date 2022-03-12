@@ -1,4 +1,4 @@
-import { HKT, Kind, Typeclass } from '@benjstephenson/kittens-ts-core/dist/src/HKT'
+import { HKT, Kind, Typeclass } from '../core/HKT'
 import { Either } from './Either'
 
 export * from './instances'
