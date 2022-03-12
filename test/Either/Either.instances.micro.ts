@@ -1,10 +1,88 @@
 import { assertThat } from 'mismatched'
 import * as E from '../../src/Either'
+import * as Eq from '../../src/core/Equal'
 import * as fc from 'fast-check'
 import { id } from '../../src/core/functions'
 
 describe('Either instances', () => {
   const inc = (n: number) => n + 1
+
+  describe('Equality', () => {
+    it('left does not equal right', () => {
+      fc.assert(
+        fc.property(fc.oneof(fc.integer(), fc.boolean(), fc.string()), left => {
+          const x = E.left(left)
+          const y = E.right(left)
+
+          const eitherEq = E.getEquals(Eq.withDefault(), Eq.withDefault())
+          assertThat(eitherEq.equals(x, y)).withMessage('left equals right').is(false)
+          assertThat(eitherEq.equals(y, x)).withMessage('left equals right').is(false)
+        })
+      )
+    })
+
+    it('equals left', () => {
+      fc.assert(
+        fc.property(fc.oneof(fc.integer(), fc.boolean(), fc.string()), left => {
+          const x = E.left(left)
+          const y = E.left(left)
+
+          const eitherEq = E.getEquals(Eq.withDefault(), Eq.never())
+          assertThat(eitherEq.equals(x, y)).withMessage('left is not equal').is(true)
+        })
+      )
+    })
+
+    it('not equals left', () => {
+      fc.assert(
+        fc.property(
+          fc.array(fc.oneof(fc.integer(), fc.boolean(), fc.string()), { minLength: 2, maxLength: 2 }).filter(v => {
+            const [first, second] = v
+            return first !== second
+          }),
+          values => {
+            const [left, left2] = values
+            const x = E.left(left)
+            const y = E.left(left2)
+
+            const eitherEq = E.getEquals(Eq.withDefault(), Eq.never())
+            assertThat(eitherEq.equals(x, y)).withMessage('left is equal').is(false)
+          }
+        )
+      )
+    })
+
+    it('equals right', () => {
+      fc.assert(
+        fc.property(fc.oneof(fc.integer(), fc.boolean(), fc.string()), right => {
+          const x = E.right(right)
+          const y = E.right(right)
+
+          const eitherEq = E.getEquals(Eq.never(), Eq.withDefault())
+          assertThat(eitherEq.equals(x, y)).withMessage('right is not equal').is(true)
+        })
+      )
+    })
+
+    it('not equals right', () => {
+      fc.assert(
+        fc.property(
+          fc.array(fc.oneof(fc.integer(), fc.boolean(), fc.string()), { minLength: 2, maxLength: 2 }).filter(v => {
+            const [first, second] = v
+            return first !== second
+          }),
+          values => {
+            const [right, right2] = values
+            const x = E.right(right)
+            const y = E.right(right2)
+
+            const eitherEq = E.getEquals(Eq.never(), Eq.withDefault())
+            assertThat(eitherEq.equals(x, y)).withMessage('right is equal').is(false)
+          }
+        )
+      )
+    })
+  })
 
   describe('Functor laws', () => {
     it('identity', () => {

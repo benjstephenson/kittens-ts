@@ -25,6 +25,8 @@ interface EitherFns<E, A> {
 
   flatMap<E2, B>(f: (r: A) => Either<E2, B>): Either<E | E2, B>
 
+  flatMapLeft<E2, B>(f: (r: E) => Either<E2, B>): Either<E2, A | B>
+
   bimap<EE, AA>(fo: { Left: (e: E) => EE; Right: (a: A) => AA }): Either<EE, AA>
 
   fold<B>(f: (acc: B, a: A) => B, init: B): B
@@ -71,6 +73,10 @@ export class Left<E, A> implements EitherFns<E, A> {
 
   flatMap<E2, B>(f: (r: A) => Either<E2, B>): Either<E | E2, B> {
     return pipe(this, fns.flatMap(f))
+  }
+
+  flatMapLeft<E2, B>(f: (r: E) => Either<E2, B>): Either<E2, A | B> {
+    return pipe(this, fns.flatMapLeft(f))
   }
 
   bimap<EE, AA>(fo: { Left: (e: E) => EE; Right: (a: A) => AA }): Either<EE, AA> {
@@ -125,6 +131,10 @@ export class Right<E, A> implements EitherFns<E, A> {
 
   flatMap<E2, B>(f: (r: A) => Either<E2, B>): Either<E | E2, B> {
     return fns._flatMap<E, E2, A, B>(f, this)
+  }
+
+  flatMapLeft<E2, B>(f: (r: E) => Either<E2, B>): Either<E2, A | B> {
+    return pipe(this, fns.flatMapLeft(f))
   }
 
   bimap<E2, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }): Either<E2, B> {

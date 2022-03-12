@@ -33,20 +33,32 @@ describe('Either', () => {
       )
     })
 
-    it('flatMap preserves Right', () => {
+    it('flatMap maps preserves Right', () => {
       fc.assert(
         fc.property(fc.anything(), fc.anything(), (value, other) => {
-          const some = E.right(value).flatMap(_ => E.right(other))
-          assertThat(some.value).is(other)
+          const either = E.right(value).flatMap(_ => E.right(other))
+          assertThat(either.tag).is('Right')
+          assertThat(either.value).is(other)
         })
       )
     })
 
-    it('flatMap preserves Left', () => {
+    it('flatMap maps and preserves Left', () => {
       fc.assert(
         fc.property(fc.anything(), fc.anything(), (value, other) => {
-          const some = E.right(value).flatMap(_ => E.left(other))
-          assertThat(some.value).is(other)
+          const either = E.right(value).flatMap(_ => E.left(other))
+          assertThat(either.tag).is('Left')
+          assertThat(either.value).is(other)
+        })
+      )
+    })
+
+    it('flatMapLeft preserves Right', () => {
+      fc.assert(
+        fc.property(fc.anything(), fc.anything(), (value, other) => {
+          const some = E.right(value).flatMapLeft(_ => E.left(other))
+          assertThat(some.tag).is('Right')
+          assertThat(some.value).is(value)
         })
       )
     })
@@ -84,6 +96,26 @@ describe('Either', () => {
         fc.property(fc.anything(), fc.anything(), (value, other) => {
           const none = E.left(value).flatMap(_ => E.left(other))
           assertThat(none.value).is(value)
+        })
+      )
+    })
+
+    it('flatMapLeft maps and preserves Left', () => {
+      fc.assert(
+        fc.property(fc.anything(), fc.anything(), (value, other) => {
+          const some = E.left(value).flatMapLeft(_ => E.left(other))
+          assertThat(some.tag).is('Left')
+          assertThat(some.value).is(other)
+        })
+      )
+    })
+
+    it('flatMapLeft maps and preserves Right', () => {
+      fc.assert(
+        fc.property(fc.anything(), fc.anything(), (value, other) => {
+          const some = E.left(value).flatMapLeft(_ => E.right(other))
+          assertThat(some.tag).is('Right')
+          assertThat(some.value).is(other)
         })
       )
     })

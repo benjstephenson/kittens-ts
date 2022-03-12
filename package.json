@@ -12,8 +12,8 @@
     "registry": "https://npm.pkg.github.com/benjstephenson"
   },
   "scripts": {
-    "compile": "tsc --extendedDiagnostics -p .",
-    "test": "jasmine --config=jasmine.json",
+    "build": "tsc --extendedDiagnostics -p .",
+    "test": "npm run build && jasmine --config=jasmine.json",
     "prepare": "husky install"
   },
   "author": "Benji Stephenson",

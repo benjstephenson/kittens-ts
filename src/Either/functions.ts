@@ -41,6 +41,13 @@ export const flatMap =
 
 export const _flatMap = <E, E2, A, B>(f: (a: A) => Either<E2, B>, fa: Either<E, A>): Either<E | E2, B> => flatMap(f)(fa)
 
+export const flatMapLeft =
+  <E, E2, B>(f: (e: E) => Either<E2, B>) =>
+  <A>(fa: Either<E, A>): Either<E2, A | B> =>
+    fa.isLeft() ? f(fa.value) : right(fa.value)
+
+export const _flatMapLeft = <E, E2, A, B>(f: (e: E) => Either<E2, B>, fa: Either<E, A>): Either<E2, A | B> => flatMapLeft(f)(fa)
+
 export const _bimap = <E, E2, A, B>(fo: { Left: (e: E) => E2; Right: (a: A) => B }, fa: Either<E, A>): Either<E2, B> => bimap(fo)(fa)
 
 export const bimap =
