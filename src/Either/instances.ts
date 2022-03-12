@@ -5,7 +5,7 @@ import { Applicative as _Applicative } from '../core/Applicative'
 import { Equal } from '../core/Equal'
 import { Semigroup } from '../core/Semigroup'
 import { Apply as _Apply } from '../core/Apply'
-import { Functor as _Functor } from '../core/Functor'
+import { Functor as _Functor, Functor2 as _Functor2 } from '../core/Functor'
 import { Failable as _Failable } from '../core/Failable'
 import { Monad as _Monad } from '../core/Monad'
 import { Foldable as _Foldable } from '../core/Foldable'
@@ -23,6 +23,10 @@ export const getSemigroup = <E, A>(S: Semigroup<A>): Semigroup<Either<E, A>> => 
 
 export const Functor: _Functor<EitherF> = {
   map: fns._map
+}
+
+export const Functor2: _Functor2<EitherF> = {
+  map_: fns.map
 }
 
 export const Apply: _Apply<EitherF> = {

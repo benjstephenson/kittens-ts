@@ -2,7 +2,7 @@ import { assertThat } from 'mismatched'
 import * as E from '../../src/Either'
 import * as Eq from '../../src/core/Equal'
 import * as fc from 'fast-check'
-import { id } from '../../src/core/functions'
+import { id, pipe } from '../../src/core/functions'
 
 describe('Either instances', () => {
   const inc = (n: number) => n + 1
@@ -98,6 +98,13 @@ describe('Either instances', () => {
       fc.assert(
         fc.property(fc.integer(), value => {
           const some = E.right(value)
+
+          assertThat(pipe(some, E.Functor2.map_(inc), E.Functor2.map_(inc))).is(
+            pipe(
+              some,
+              E.Functor2.map_(x => inc(inc(x)))
+            )
+          )
 
           assertThat(E.Functor.map(inc, E.Functor.map(inc, some))).is(E.Functor.map(x => inc(inc(x)), some))
         })
