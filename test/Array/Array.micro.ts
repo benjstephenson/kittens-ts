@@ -1,10 +1,10 @@
 import { assertThat } from 'mismatched'
 import * as fc from 'fast-check'
-import * as A from '../src/Array'
-import * as O from '../src/Option'
-import * as E from '../src/Either'
-import { getCompose } from '../src/core/Compose'
-import { pipe } from '../src/core/functions'
+import * as A from '../../src/Array'
+import * as O from '../../src/Option'
+import * as E from '../../src/Either'
+import { getCompose } from '../../src/core/Compose'
+import { pipe } from '../../src/core/functions'
 
 describe('Array', () => {
   it('sequences a tuple', () => {
