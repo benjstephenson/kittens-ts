@@ -38,7 +38,7 @@ describe('Option', () => {
           const some = O.some(value).map(_ => other)
 
           if (some.isSome()) assertThat(some.value).is(other)
-          else fail('Some.map produced a None')
+          else throw Error('Some.map produced a None')
         })
       )
     })

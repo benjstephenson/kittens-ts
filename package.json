@@ -15,7 +15,7 @@
     "build": "tsc --extendedDiagnostics -p .",
     "clean": "rimraf dist/** && rimraf ./tsconfig.tsbuildinfo",
     "clean:build": "npm run clean && npm run build",
-    "test": "npm run build && mocha -r ts-node/register 'src/**/*.micro.ts'",
+    "test": "npm run build && mocha -r ts-node/register 'test/**/*.micro.ts'",
     "prepare": "husky install"
   },
   "author": "Benji Stephenson",

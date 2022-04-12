@@ -31,6 +31,8 @@ interface EitherFns<E, A> {
 
   fold<B>(f: (acc: B, a: A) => B, init: B): B
 
+  match<B>(f: { Left: (e: E) => B; Right: (a: A) => B }): B
+
   toOption(): O.Option<A>
 }
 
@@ -85,6 +87,10 @@ export class Left<E, A> implements EitherFns<E, A> {
 
   fold<B>(f: (acc: B, a: A) => B, init: B): B {
     return pipe(this, fns.fold(f, init))
+  }
+
+  match<B>(f: { Left: (e: E) => B; Right: (a: A) => B }): B {
+    return pipe(this, fns.match(f))
   }
 
   toOption(): O.Option<A> {
@@ -143,6 +149,10 @@ export class Right<E, A> implements EitherFns<E, A> {
 
   fold<B>(f: (acc: B, a: A) => B, init: B): B {
     return fns._fold(f, init, this)
+  }
+
+  match<B>(f: { Left: (e: E) => B; Right: (a: A) => B }): B {
+    return pipe(this, fns.match(f))
   }
 
   toOption(): O.Option<A> {

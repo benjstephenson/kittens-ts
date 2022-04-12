@@ -27,8 +27,7 @@ describe('Either', () => {
         fc.property(fc.anything(), fc.anything(), (value, other) => {
           const result = E.right(value).map(_ => other)
 
-          if (result.isRight()) assertThat(result.value).is(other)
-          else fail('Right.map produced a Left')
+          assertThat(result.value).is(other)
         })
       )
     })
