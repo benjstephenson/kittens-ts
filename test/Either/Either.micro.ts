@@ -3,6 +3,8 @@ import * as E from '../../src/Either'
 import * as fc from 'fast-check'
 
 describe('Either', () => {
+  const inc = (n: number) => n + 1
+
   describe('Right', () => {
     it('isRight', () => {
       fc.assert(fc.property(fc.anything(), value => assertThat(E.right(value).isRight()).is(true)))
@@ -28,6 +30,19 @@ describe('Either', () => {
           const result = E.right(value).map(_ => other)
 
           assertThat(result.value).is(other)
+        })
+      )
+    })
+
+    it('match', () => {
+      fc.assert(
+        fc.property(fc.integer(), value => {
+          const result = E.right(value).match({
+            Left: _ => 0,
+            Right: inc
+          })
+
+          assertThat(result).is(inc(value))
         })
       )
     })
@@ -90,6 +105,18 @@ describe('Either', () => {
       )
     })
 
+    it('match', () => {
+      fc.assert(
+        fc.property(fc.integer(), value => {
+          const result = E.left(value).match({
+            Left: inc,
+            Right: _ => 0
+          })
+
+          assertThat(result).is(inc(value))
+        })
+      )
+    })
     it('flatMap preserves Left', () => {
       fc.assert(
         fc.property(fc.anything(), fc.anything(), (value, other) => {
