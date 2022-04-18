@@ -1,12 +1,12 @@
-import { assertThat } from 'mismatched'
+import { assertThat, match } from 'mismatched'
 import * as fc from 'fast-check'
 import * as A from '../../src/Array'
 import * as O from '../../src/Option'
-import * as E from '../../src/Either'
-import { getCompose } from '../../src/core/Compose'
-import { pipe } from '../../src/core/functions'
+import * as Ord from '../../src/core/Orderable'
 
 describe('Array', () => {
+  const sort = A.sort(Ord.number)
+
   it('sequences a tuple', () => {
     fc.assert(
       fc.property(fc.integer(), fc.boolean(), fc.string(), (num, bool, str) => {
@@ -16,46 +16,24 @@ describe('Array', () => {
     )
   })
 
-  describe('traversable laws', () => {
-    it('identity', () => {
-      // u.traverse(F, F.of) === F.of(u)
+  describe('sortable', () => {
+    it('keeps all elements', () => {
       fc.assert(
-        fc.property(fc.integer(), fc.integer(), fc.integer(), (num, num2, num3) => {
-          const array = [O.some(num), O.some(num2), O.some(num3)]
+        fc.property(fc.array(fc.integer()), arr => {
+          const sorted = sort(arr)
 
-          assertThat(A.traverse(O.Applicative)(O.Applicative.of)(array)).is(O.Applicative.of(array))
+          assertThat(sorted.length).is(arr.length)
+          assertThat(sorted).is(match.array.unorderedContains(arr))
         })
       )
     })
 
-    it('naturality', () => {
-      // t(u.sequence(F)) === u.traverse(G, t)
+    it('idempotent', () => {
       fc.assert(
-        fc.property(fc.integer(), fc.integer(), fc.integer(), (num, num2, num3) => {
-          const transformation = <A>(x: O.Option<A>) => x.map(E.right).getOrElse(E.left('oops'))
+        fc.property(fc.array(fc.integer()), arr => {
+          const sorted = sort(arr)
 
-          const array = [O.some(num), O.some(num2), O.some(num3)]
-
-          assertThat(transformation(A.sequence(O.Applicative)(array))).is(A.traverse(E.Applicative)(transformation)(array))
-        })
-      )
-    })
-
-    it('composition', () => {
-      // t (F (G a)) -> Compose F G (t a)
-      // u.map(Comp).sequence(Comp) ===
-      //   Comp(u.sequence(F)
-      //         .map(x => x.sequence(G)))
-      // Or :
-      // traversal in F[_] followed by traversal in G[_] is the same as
-      // one traversal in the composite Applicative F[G[_]].F
-
-      fc.assert(
-        fc.property(fc.integer(), fc.integer(), fc.integer(), (num, num2, num3) => {
-          const compose = getCompose(O.Applicative, E.Applicative)
-          const array = [O.some(E.right(num)), O.some(E.right(num2)), O.some(E.right(num3))]
-
-          assertThat(O.map(A.sequence(E.Applicative))(pipe(array, A.sequence(O.Applicative)))).is(A.sequence(compose)(array))
+          assertThat(sorted).is(sort(sorted))
         })
       )
     })

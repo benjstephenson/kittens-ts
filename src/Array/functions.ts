@@ -24,7 +24,7 @@ export const head = <T>(l: T[]): O.Option<T> => (l.length > 1 ? O.of(l[0]) : O.n
 export const fold =
   <A>(f: (acc: A, cur: A) => A, init: A) =>
   (fa: A[]) =>
-    fa.reduce(f, init)
+    fa.slice().reduce(f, init)
 
 export const _fold = <A>(f: (acc: A, cur: A) => A, init: A, fa: A[]) => pipe(fa, fold(f, init))
 
